@@ -33,8 +33,8 @@
       "properties": {
         "zone_name": "SG Highway Commercial Corridor",
         "zone_type": "commercial",
-        "area_sq_km": 8.67,
-        "building_density": 283,
+        "area_sq_km": 6.02,
+        "building_density": 249,
         "max_floor_area_ratio": 2.7,
         "permitted": true
       }
@@ -71,8 +71,8 @@
       "properties": {
         "zone_name": "Ashram Road Central Business District",
         "zone_type": "commercial",
-        "area_sq_km": 7.85,
-        "building_density": 197,
+        "area_sq_km": 5.92,
+        "building_density": 227,
         "max_floor_area_ratio": 3.0,
         "permitted": true
       }
@@ -109,8 +109,8 @@
       "properties": {
         "zone_name": "Sanand Industrial Cluster GIDC",
         "zone_type": "industrial",
-        "area_sq_km": 9.29,
-        "building_density": 173,
+        "area_sq_km": 7.46,
+        "building_density": 337,
         "max_floor_area_ratio": 1.5,
         "permitted": true
       }
@@ -147,8 +147,8 @@
       "properties": {
         "zone_name": "Naroda GIDC Manufacturing Area",
         "zone_type": "industrial",
-        "area_sq_km": 4.23,
-        "building_density": 198,
+        "area_sq_km": 4.44,
+        "building_density": 337,
         "max_floor_area_ratio": 1.4,
         "permitted": true
       }
@@ -185,8 +185,8 @@
       "properties": {
         "zone_name": "South Bopal Urban Residential Zone",
         "zone_type": "residential",
-        "area_sq_km": 3.31,
-        "building_density": 208,
+        "area_sq_km": 7.3,
+        "building_density": 270,
         "max_floor_area_ratio": 2.0,
         "permitted": false
       }
@@ -223,8 +223,8 @@
       "properties": {
         "zone_name": "Surat Ring Road Commercial Area",
         "zone_type": "commercial",
-        "area_sq_km": 9.19,
-        "building_density": 259,
+        "area_sq_km": 6.95,
+        "building_density": 338,
         "max_floor_area_ratio": 2.8,
         "permitted": true
       }
@@ -261,8 +261,8 @@
       "properties": {
         "zone_name": "Hazira Heavy Engineering & Port Zone",
         "zone_type": "industrial",
-        "area_sq_km": 3.29,
-        "building_density": 268,
+        "area_sq_km": 6.19,
+        "building_density": 265,
         "max_floor_area_ratio": 1.6,
         "permitted": true
       }
@@ -299,8 +299,8 @@
       "properties": {
         "zone_name": "Makarpura GIDC Industrial Corridor",
         "zone_type": "industrial",
-        "area_sq_km": 5.29,
-        "building_density": 122,
+        "area_sq_km": 8.71,
+        "building_density": 327,
         "max_floor_area_ratio": 1.6,
         "permitted": true
       }
@@ -337,8 +337,8 @@
       "properties": {
         "zone_name": "Halol Automobile & Manufacturing GIDC",
         "zone_type": "industrial",
-        "area_sq_km": 7.92,
-        "building_density": 213,
+        "area_sq_km": 3.6,
+        "building_density": 203,
         "max_floor_area_ratio": 1.5,
         "permitted": true
       }
@@ -375,8 +375,8 @@
       "properties": {
         "zone_name": "Morbi Ceramic Mega Industrial Zone",
         "zone_type": "industrial",
-        "area_sq_km": 8.38,
-        "building_density": 311,
+        "area_sq_km": 4.76,
+        "building_density": 120,
         "max_floor_area_ratio": 1.8,
         "permitted": true
       }
@@ -413,8 +413,8 @@
       "properties": {
         "zone_name": "Ankleshwar Chemical & Pharma GIDC",
         "zone_type": "industrial",
-        "area_sq_km": 5.92,
-        "building_density": 195,
+        "area_sq_km": 8.37,
+        "building_density": 256,
         "max_floor_area_ratio": 1.6,
         "permitted": true
       }
@@ -451,8 +451,8 @@
       "properties": {
         "zone_name": "Dahej PCPIR Petrochemical Complex",
         "zone_type": "industrial",
-        "area_sq_km": 7.31,
-        "building_density": 97,
+        "area_sq_km": 3.32,
+        "building_density": 247,
         "max_floor_area_ratio": 1.7,
         "permitted": true
       }
@@ -489,8 +489,8 @@
       "properties": {
         "zone_name": "Vapi GIDC Industrial Estate",
         "zone_type": "industrial",
-        "area_sq_km": 4.54,
-        "building_density": 219,
+        "area_sq_km": 6.83,
+        "building_density": 198,
         "max_floor_area_ratio": 1.6,
         "permitted": true
       }
@@ -527,8 +527,8 @@
       "properties": {
         "zone_name": "Kutch Revenue Wasteland & Renewable Zone",
         "zone_type": "wasteland",
-        "area_sq_km": 4.01,
-        "building_density": 307,
+        "area_sq_km": 4.3,
+        "building_density": 147,
         "max_floor_area_ratio": 0.5,
         "permitted": false
       }
@@ -565,8 +565,8 @@
       "properties": {
         "zone_name": "Bandra Kurla Complex (BKC), Mumbai",
         "zone_type": "commercial",
-        "area_sq_km": 7.98,
-        "building_density": 105,
+        "area_sq_km": 4.38,
+        "building_density": 194,
         "max_floor_area_ratio": 3.5,
         "permitted": true
       }
@@ -603,8 +603,8 @@
       "properties": {
         "zone_name": "DLF Cyber City, Gurugram",
         "zone_type": "commercial",
-        "area_sq_km": 6.44,
-        "building_density": 172,
+        "area_sq_km": 4.99,
+        "building_density": 171,
         "max_floor_area_ratio": 3.2,
         "permitted": true
       }
@@ -641,8 +641,8 @@
       "properties": {
         "zone_name": "Whitefield IT Park (ITPB), Bengaluru",
         "zone_type": "commercial",
-        "area_sq_km": 4.33,
-        "building_density": 171,
+        "area_sq_km": 3.0,
+        "building_density": 181,
         "max_floor_area_ratio": 2.8,
         "permitted": true
       }
@@ -679,8 +679,8 @@
       "properties": {
         "zone_name": "Hinjawadi Infotech SEZ, Pune",
         "zone_type": "industrial",
-        "area_sq_km": 5.38,
-        "building_density": 297,
+        "area_sq_km": 7.95,
+        "building_density": 201,
         "max_floor_area_ratio": 2.0,
         "permitted": true
       }
@@ -717,8 +717,8 @@
       "properties": {
         "zone_name": "HITEC City & Gachibowli, Hyderabad",
         "zone_type": "commercial",
-        "area_sq_km": 5.59,
-        "building_density": 192,
+        "area_sq_km": 4.67,
+        "building_density": 118,
         "max_floor_area_ratio": 3.0,
         "permitted": true
       }

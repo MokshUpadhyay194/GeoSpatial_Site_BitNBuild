@@ -151,36 +151,51 @@ def generate_national_transportation():
     return {"type": "FeatureCollection", "features": features}
 
 
-def generate_national_poi(total_count: int = 800):
+def generate_national_poi():
     categories = ["retail", "restaurant", "ev_charging", "gas_station", "grocery", "bank", "hotel"]
     features = []
+    poi_id = 1
     
-    for i in range(total_count):
-        s = random.choice(ALL_SETTLEMENTS)
+    for s in ALL_SETTLEMENTS:
         c_lat, c_lng = s["lat"], s["lng"]
         radius = s["radius_km"] * 0.65
+        tier = s.get("tier", 3)
+        cat = s.get("category", "city")
         
-        angle = random.uniform(0, 2 * math.pi)
-        dist_km = random.triangular(0.2, radius, 1.8)
-        p_lat = c_lat + dist_km * math.cos(angle) / 111.0
-        p_lng = c_lng + dist_km * math.sin(angle) / (111.0 * math.cos(math.radians(c_lat)))
-        
-        cat = random.choice(categories)
-        features.append({
-            "type": "Feature",
-            "geometry": {"type": "Point", "coordinates": [round(p_lng, 5), round(p_lat, 5)]},
-            "properties": {
-                "name": f"{s['name']} {cat.replace('_', ' ').title()} #{i + 1}",
-                "type": cat,
-                "category": cat,
-                "city": s["name"],
-                "rating": round(random.uniform(3.4, 4.9), 1),
-                "footfall": random.randint(300, 4800),
-                "revenue_index": round(random.uniform(0.40, 0.96), 2),
-                "value": round(random.uniform(0.25, 0.98), 3),
-            }
-        })
-        
+        if cat in ("ward", "benchmark") or tier == 1:
+            count = 8
+        elif cat == "industrial":
+            count = 6
+        elif tier == 2:
+            count = 5
+        elif tier == 3:
+            count = 4
+        else:
+            count = 2
+            
+        for _ in range(count):
+            angle = random.uniform(0, 2 * math.pi)
+            dist_km = random.triangular(0.2, radius, 1.5)
+            p_lat = c_lat + dist_km * math.cos(angle) / 111.0
+            p_lng = c_lng + dist_km * math.sin(angle) / (111.0 * math.cos(math.radians(c_lat)))
+            
+            p_type = random.choice(categories)
+            features.append({
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [round(p_lng, 5), round(p_lat, 5)]},
+                "properties": {
+                    "name": f"{s['name']} {p_type.replace('_', ' ').title()} #{poi_id}",
+                    "type": p_type,
+                    "category": p_type,
+                    "city": s["name"],
+                    "rating": round(random.uniform(3.6, 4.9), 1),
+                    "footfall": random.randint(400, 5200),
+                    "revenue_index": round(random.uniform(0.45, 0.98), 2),
+                    "value": round(random.uniform(0.35, 0.98), 3),
+                }
+            })
+            poi_id += 1
+            
     return {"type": "FeatureCollection", "features": features}
 
 
@@ -325,7 +340,7 @@ def build_and_save_all():
     layers = [
         ("demographics.geojson", generate_national_demographics()),
         ("transportation.geojson", generate_national_transportation()),
-        ("poi.geojson", generate_national_poi(850)),
+        ("poi.geojson", generate_national_poi()),
         ("landuse.geojson", generate_national_landuse()),
         ("environment.geojson", generate_national_environment()),
     ]

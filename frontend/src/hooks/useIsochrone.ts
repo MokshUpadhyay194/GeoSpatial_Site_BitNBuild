@@ -36,7 +36,7 @@ export interface IsochroneState {
 
 // Fallback synthetic polygon generator for standalone frontend mode
 function generateFallbackIsochrone(lat: number, lng: number, minutes: number, mode: TravelMode) {
-  const speed = mode === 'walking' ? 4.5 : mode === 'cycling' ? 15.0 : 42.0;
+  const speed = mode === 'walking' ? 4.5 : mode === 'cycling' ? 14.0 : 34.0;
   const radiusKm = speed * (minutes / 60.0);
   const deltaLat = (radiusKm / 6371.0) * (180.0 / Math.PI);
   const deltaLng = deltaLat / Math.cos((lat * Math.PI) / 180.0);
@@ -52,7 +52,7 @@ function generateFallbackIsochrone(lat: number, lng: number, minutes: number, mo
   }
   coords.push(coords[0]);
 
-  const approxArea = Number((Math.PI * radiusKm * radiusKm * 0.9).toFixed(2));
+  const approxArea = Number((Math.PI * radiusKm * radiusKm * 0.98).toFixed(1));
   return {
     type: 'FeatureCollection',
     features: [
@@ -76,18 +76,18 @@ function generateFallbackIsochrone(lat: number, lng: number, minutes: number, mo
 }
 
 function generateFallbackCatchment(lat: number, lng: number, minutes: number, mode: TravelMode): CatchmentData {
-  const speed = mode === 'walking' ? 4.5 : mode === 'cycling' ? 15.0 : 42.0;
+  const speed = mode === 'walking' ? 4.5 : mode === 'cycling' ? 14.0 : 34.0;
   const radiusKm = speed * (minutes / 60.0);
-  const area = Number((Math.PI * radiusKm * radiusKm * 0.85).toFixed(2));
-  const avgDensity = 14250;
-  const pop = Math.round(area * avgDensity * 0.68);
+  const area = Number((Math.PI * radiusKm * radiusKm * 0.98).toFixed(1));
+  const avgDensity = 6800;
+  const pop = Math.round(area * avgDensity * 0.72);
 
   const timeBands: TimeBandStat[] = [5, 10, 15, 30].map((m) => {
     const r = speed * (m / 60.0);
-    const a = Number((Math.PI * r * r * 0.85).toFixed(2));
+    const a = Number((Math.PI * r * r * 0.98).toFixed(1));
     return {
       minutes: m,
-      population: Math.round(a * avgDensity * 0.68),
+      population: Math.round(a * avgDensity * 0.72),
       area_km2: a,
       label: `${m} min ${mode.charAt(0).toUpperCase() + mode.slice(1)}`,
     };
@@ -101,7 +101,7 @@ function generateFallbackCatchment(lat: number, lng: number, minutes: number, mo
     population_reached: pop,
     average_density_per_km2: avgDensity,
     dominant_income_tier: 'Medium',
-    competitors_in_catchment: Math.max(2, Math.round(area * 0.08)),
+    competitors_in_catchment: Math.max(3, Math.round(area * 0.08)),
     competitor_categories: {
       ev_charging: Math.max(1, Math.round(area * 0.03)),
       retail: Math.max(1, Math.round(area * 0.04)),
@@ -112,13 +112,13 @@ function generateFallbackCatchment(lat: number, lng: number, minutes: number, mo
 }
 
 export function useIsochrone(location: { lat: number; lng: number } | null): IsochroneState {
-  const [minutes, setMinutes] = useState<number>(15);
+  const [minutes, setMinutes] = useState<number>(10);
   const [mode, setMode] = useState<TravelMode>('driving');
   const [isochroneData, setIsochroneData] = useState<any | null>(() =>
-    location ? generateFallbackIsochrone(location.lat, location.lng, 15, 'driving') : null
+    location ? generateFallbackIsochrone(location.lat, location.lng, 10, 'driving') : null
   );
   const [catchmentData, setCatchmentData] = useState<CatchmentData | null>(() =>
-    location ? generateFallbackCatchment(location.lat, location.lng, 15, 'driving') : null
+    location ? generateFallbackCatchment(location.lat, location.lng, 10, 'driving') : null
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -130,7 +130,7 @@ export function useIsochrone(location: { lat: number; lng: number } | null): Iso
     minutes: number;
     mode: TravelMode;
   } | null>(
-    location ? { lat: location.lat, lng: location.lng, minutes: 15, mode: 'driving' } : null
+    location ? { lat: location.lat, lng: location.lng, minutes: 10, mode: 'driving' } : null
   );
 
   if (

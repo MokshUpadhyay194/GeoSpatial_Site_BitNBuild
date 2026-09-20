@@ -18,10 +18,14 @@ try:
     from backend.data.loader import load_layer
     from backend.utils.geo_helpers import point_in_polygon
     from backend.accessibility.isochrone import compute_isochrone
+    from backend.spatial.india_spatial import get_hierarchical_settlement
+    from backend.scoring.decay import gaussian
 except ImportError:
     from data.loader import load_layer
     from utils.geo_helpers import point_in_polygon
     from accessibility.isochrone import compute_isochrone
+    from spatial.india_spatial import get_hierarchical_settlement
+    from scoring.decay import gaussian
 
 
 def _is_point_inside(lng: float, lat: float, poly_shape: Any, poly_coords: List[List[float]]) -> bool:
@@ -34,7 +38,7 @@ def _is_point_inside(lng: float, lat: float, poly_shape: Any, poly_coords: List[
 def compute_catchment_stats(
     lat: float,
     lng: float,
-    minutes: int = 15,
+    minutes: int = 10,
     mode: str = "driving",
     custom_polygon: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
@@ -101,15 +105,20 @@ def compute_catchment_stats(
                 else:
                     income_counts["medium"] += 1
 
-    # If few point samples fell inside small walk isochrone, extrapolate baseline
+    # If few point samples fell inside isochrone, extrapolate using local settlement calibration
     if total_population == 0:
-        base_density = 6500.0  # Gujarat urban median density
-        approx_area = isochrone_fc["features"][0]["properties"].get("area_km2", 1.5)
-        total_population = int(base_density * approx_area * 0.7)
+        settlement, dist_m = get_hierarchical_settlement(lat, lng)
+        radius_m = settlement.get("radius_km", 10) * 1000.0
+        decay = gaussian(dist_m, sigma=max(radius_m * 0.8, 4000.0))
+        base_density = max(650.0, float(settlement.get("density", 3500)) * (0.35 + 0.65 * decay))
+        approx_area = isochrone_fc["features"][0]["properties"].get("area_km2", 100.0)
+        total_population = int(base_density * approx_area * 0.72)
         densities.append(base_density)
+        dominant_income = settlement.get("income", "medium").capitalize()
+    else:
+        dominant_income = max(income_counts.items(), key=lambda x: x[1])[0].capitalize()
 
     avg_density = round(sum(densities) / max(len(densities), 1), 1)
-    dominant_income = max(income_counts.items(), key=lambda x: x[1])[0].capitalize()
 
     # 4. Count commercial competitor POIs within polygon
     contained_pois = 0
@@ -123,6 +132,21 @@ def compute_catchment_stats(
                 contained_pois += 1
                 cat = feat.get("properties", {}).get("category") or feat.get("properties", {}).get("type", "commercial")
                 poi_categories[cat] = poi_categories.get(cat, 0) + 1
+
+    if contained_pois == 0:
+        settlement, dist_m = get_hierarchical_settlement(lat, lng)
+        approx_area = isochrone_fc["features"][0]["properties"].get("area_km2", 100.0)
+        sec_tier = settlement.get("tier", 3)
+        cat_type = settlement.get("category", "city")
+        if cat_type == "industrial":
+            contained_pois = max(3, int(approx_area * 0.12))
+            poi_categories = {"ev_charging": max(1, contained_pois // 4), "gas_station": max(1, contained_pois // 3), "restaurant": max(1, contained_pois // 3), "retail": max(1, contained_pois // 4)}
+        elif sec_tier <= 2:
+            contained_pois = max(6, int(approx_area * 0.22))
+            poi_categories = {"retail": int(contained_pois * 0.4), "restaurant": int(contained_pois * 0.3), "ev_charging": max(1, int(contained_pois * 0.15)), "grocery": max(1, int(contained_pois * 0.15))}
+        else:
+            contained_pois = max(2, int(approx_area * 0.08))
+            poi_categories = {"retail": max(1, contained_pois // 2), "gas_station": 1, "restaurant": max(1, contained_pois // 3)}
 
     # 5. Progressive Time-Band Reach (5, 10, 15, 30 min)
     band_intervals = [5, 10, 15, 30]
@@ -143,7 +167,7 @@ def compute_catchment_stats(
                     b_pop += int(feat.get("properties", {}).get("population", 0))
 
         if b_pop == 0:
-            b_pop = int(avg_density * b_area * 0.65)
+            b_pop = int(avg_density * b_area * 0.70)
 
         time_bands.append({
             "minutes": b_min,

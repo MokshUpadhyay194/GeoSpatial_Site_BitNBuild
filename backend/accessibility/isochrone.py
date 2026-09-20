@@ -24,11 +24,11 @@ except ImportError:
     from config import DATA_DIR
     from utils.geo_helpers import haversine_distance, EARTH_RADIUS_KM
 
-# Travel mode average speeds in km/h
+# Travel mode average speeds in km/h (calibrated for Indian urban/suburban networks; 10-min driving yields ~100 km² selection area)
 SPEED_PROFILES = {
-    "driving": 42.0,       # Urban/suburban blended traffic speed in Gujarat
+    "driving": 36.6,       # Calibrated Indian arterial speed (10 min -> ~100 km²)
     "walking": 4.5,        # Pedestrian average walking speed
-    "cycling": 15.0,       # Urban bicycle speed
+    "cycling": 14.0,       # Urban bicycle speed
 }
 
 # ORS API mapping
@@ -177,7 +177,7 @@ def query_openrouteservice(
 def compute_isochrone(
     lat: float,
     lng: float,
-    minutes: int = 15,
+    minutes: int = 10,
     mode: str = "driving",
     intervals: Optional[List[int]] = None
 ) -> Dict[str, Any]:

@@ -35,6 +35,10 @@
             23.85
           ],
           [
+            73.072,
+            23.597
+          ],
+          [
             72.571,
             23.022
           ],
@@ -122,6 +126,374 @@
         "type": "LineString",
         "coordinates": [
           [
+            72.571,
+            23.022
+          ],
+          [
+            72.381,
+            22.986
+          ],
+          [
+            72.361,
+            22.836
+          ],
+          [
+            71.81,
+            22.56
+          ],
+          [
+            71.637,
+            22.727
+          ],
+          [
+            71.21,
+            22.42
+          ],
+          [
+            70.802,
+            22.303
+          ]
+        ]
+      },
+      "properties": {
+        "name": "NH-47 Ahmedabad-Rajkot Expressway Link",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 6,
+        "speed_limit_kmh": 120
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            70.802,
+            22.303
+          ],
+          [
+            70.79,
+            21.96
+          ],
+          [
+            70.62,
+            21.75
+          ],
+          [
+            70.457,
+            21.522
+          ],
+          [
+            70.38,
+            21.3
+          ],
+          [
+            70.25,
+            21.15
+          ],
+          [
+            70.367,
+            20.907
+          ]
+        ]
+      },
+      "properties": {
+        "name": "NH-151 Rajkot-Junagadh-Somnath Corridor",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 4,
+        "speed_limit_kmh": 100
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            68.967,
+            22.239
+          ],
+          [
+            69.609,
+            21.641
+          ],
+          [
+            70.12,
+            21.1
+          ],
+          [
+            70.367,
+            20.907
+          ],
+          [
+            71.02,
+            20.82
+          ],
+          [
+            71.4,
+            20.91
+          ],
+          [
+            71.77,
+            21.09
+          ],
+          [
+            72.05,
+            21.35
+          ],
+          [
+            72.151,
+            21.764
+          ]
+        ]
+      },
+      "properties": {
+        "name": "NH-51 Coastal Arterial Corridor",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 4,
+        "speed_limit_kmh": 100
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            72.995,
+            21.705
+          ],
+          [
+            72.82,
+            21.68
+          ],
+          [
+            72.58,
+            21.71
+          ]
+        ]
+      },
+      "properties": {
+        "name": "Bharuch-Dahej PCPIR Port Expressway",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 6,
+        "speed_limit_kmh": 120
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            69.609,
+            21.641
+          ],
+          [
+            70.25,
+            21.75
+          ],
+          [
+            70.802,
+            22.303
+          ],
+          [
+            70.838,
+            22.812
+          ],
+          [
+            70.6,
+            23.25
+          ],
+          [
+            71.05,
+            23.48
+          ],
+          [
+            71.6,
+            23.83
+          ],
+          [
+            72.434,
+            24.172
+          ],
+          [
+            73.712,
+            24.585
+          ],
+          [
+            74.626,
+            24.888
+          ],
+          [
+            75.864,
+            25.213
+          ],
+          [
+            78.568,
+            25.448
+          ],
+          [
+            80.331,
+            26.449
+          ],
+          [
+            80.946,
+            26.846
+          ],
+          [
+            83.373,
+            26.76
+          ],
+          [
+            85.36,
+            26.12
+          ],
+          [
+            87.47,
+            25.77
+          ],
+          [
+            88.395,
+            26.727
+          ],
+          [
+            91.736,
+            26.144
+          ]
+        ]
+      },
+      "properties": {
+        "name": "NH-27 East-West Arterial Corridor",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 4,
+        "speed_limit_kmh": 100
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            72.571,
+            23.022
+          ],
+          [
+            72.636,
+            23.215
+          ],
+          [
+            72.498,
+            23.242
+          ],
+          [
+            72.369,
+            23.588
+          ],
+          [
+            72.13,
+            23.85
+          ],
+          [
+            72.434,
+            24.172
+          ],
+          [
+            72.85,
+            24.33
+          ]
+        ]
+      },
+      "properties": {
+        "name": "North Gujarat Arterial (SH-41 / NH-58)",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 2,
+        "speed_limit_kmh": 80
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            72.68,
+            21.1
+          ],
+          [
+            72.831,
+            21.17
+          ],
+          [
+            73.11,
+            21.12
+          ],
+          [
+            73.402,
+            21.112
+          ],
+          [
+            73.61,
+            21.16
+          ],
+          [
+            74.77,
+            20.9
+          ]
+        ]
+      },
+      "properties": {
+        "name": "NH-53 Surat-Dhule Trans-National Highway",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 4,
+        "speed_limit_kmh": 100
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            73.181,
+            22.307
+          ],
+          [
+            73.473,
+            22.498
+          ],
+          [
+            73.614,
+            22.775
+          ],
+          [
+            74.255,
+            22.836
+          ]
+        ]
+      },
+      "properties": {
+        "name": "Vadodara-Halol-Godhra-Dahod Corridor",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 4,
+        "speed_limit_kmh": 100
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
             74.797,
             34.083
           ],
@@ -200,169 +572,7 @@
         ]
       },
       "properties": {
-        "name": "NH-44 North-South Corridor",
-        "road_type": "highway",
-        "surface": "paved",
-        "lanes": 6,
-        "speed_limit_kmh": 120
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            69.609,
-            21.641
-          ],
-          [
-            70.25,
-            21.75
-          ],
-          [
-            70.802,
-            22.303
-          ],
-          [
-            70.83,
-            22.82
-          ],
-          [
-            70.6,
-            23.25
-          ],
-          [
-            71.05,
-            23.48
-          ],
-          [
-            71.6,
-            23.83
-          ],
-          [
-            72.434,
-            24.172
-          ],
-          [
-            73.712,
-            24.585
-          ],
-          [
-            74.626,
-            24.888
-          ],
-          [
-            75.864,
-            25.213
-          ],
-          [
-            78.568,
-            25.448
-          ],
-          [
-            80.331,
-            26.449
-          ],
-          [
-            80.946,
-            26.846
-          ],
-          [
-            83.373,
-            26.76
-          ],
-          [
-            85.36,
-            26.12
-          ],
-          [
-            87.47,
-            25.77
-          ],
-          [
-            88.395,
-            26.727
-          ],
-          [
-            91.736,
-            26.144
-          ]
-        ]
-      },
-      "properties": {
-        "name": "NH-27 East-West Arterial Corridor",
-        "road_type": "highway",
-        "surface": "paved",
-        "lanes": 4,
-        "speed_limit_kmh": 100
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            80.27,
-            13.082
-          ],
-          [
-            79.986,
-            14.442
-          ],
-          [
-            80.049,
-            15.505
-          ],
-          [
-            80.436,
-            16.306
-          ],
-          [
-            80.648,
-            16.506
-          ],
-          [
-            81.804,
-            17.0
-          ],
-          [
-            83.218,
-            17.686
-          ],
-          [
-            83.893,
-            18.294
-          ],
-          [
-            84.794,
-            19.314
-          ],
-          [
-            85.824,
-            20.296
-          ],
-          [
-            85.882,
-            20.462
-          ],
-          [
-            86.933,
-            21.493
-          ],
-          [
-            87.323,
-            22.33
-          ],
-          [
-            88.363,
-            22.572
-          ]
-        ]
-      },
-      "properties": {
-        "name": "NH-16 Eastern Coastal Corridor",
+        "name": "NH-44 North-South Grand Corridor",
         "road_type": "highway",
         "surface": "paved",
         "lanes": 6,
@@ -446,6 +656,77 @@
         "type": "LineString",
         "coordinates": [
           [
+            80.27,
+            13.082
+          ],
+          [
+            79.986,
+            14.442
+          ],
+          [
+            80.049,
+            15.505
+          ],
+          [
+            80.436,
+            16.306
+          ],
+          [
+            80.648,
+            16.506
+          ],
+          [
+            81.804,
+            17.0
+          ],
+          [
+            83.218,
+            17.686
+          ],
+          [
+            83.893,
+            18.294
+          ],
+          [
+            84.794,
+            19.314
+          ],
+          [
+            85.824,
+            20.296
+          ],
+          [
+            85.882,
+            20.462
+          ],
+          [
+            86.933,
+            21.493
+          ],
+          [
+            87.323,
+            22.33
+          ],
+          [
+            88.363,
+            22.572
+          ]
+        ]
+      },
+      "properties": {
+        "name": "NH-16 Eastern Coastal Corridor",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 6,
+        "speed_limit_kmh": 120
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
             77.209,
             28.614
           ],
@@ -517,49 +798,33 @@
         "type": "LineString",
         "coordinates": [
           [
-            69.666,
-            23.242
+            75.787,
+            26.912
           ],
           [
-            69.355,
-            22.833
+            75.864,
+            25.213
           ],
           [
-            68.967,
-            22.239
+            75.8,
+            24.5
           ],
           [
-            69.609,
-            21.641
+            75.788,
+            23.176
           ],
           [
-            70.367,
-            20.907
-          ],
-          [
-            71.77,
-            21.09
-          ],
-          [
-            72.151,
-            21.764
-          ],
-          [
-            72.19,
-            22.247
-          ],
-          [
-            72.571,
-            23.022
+            75.857,
+            22.719
           ]
         ]
       },
       "properties": {
-        "name": "Saurashtra & Kutch Coastal Highway Link",
+        "name": "NH-52 Jaipur-Kota-Indore Corridor",
         "road_type": "highway",
         "surface": "paved",
-        "lanes": 2,
-        "speed_limit_kmh": 80
+        "lanes": 4,
+        "speed_limit_kmh": 100
       }
     },
     {
@@ -568,88 +833,29 @@
         "type": "LineString",
         "coordinates": [
           [
-            72.571,
-            23.022
+            73.856,
+            18.52
           ],
           [
-            72.636,
-            23.215
+            75.906,
+            17.659
           ],
           [
-            72.369,
-            23.588
+            78.486,
+            17.385
           ],
           [
-            72.13,
-            23.85
-          ],
-          [
-            72.434,
-            24.172
+            80.648,
+            16.506
           ]
         ]
       },
       "properties": {
-        "name": "North Gujarat Highway (SH-41)",
+        "name": "NH-65 Pune-Hyderabad-Vijayawada Corridor",
         "road_type": "highway",
         "surface": "paved",
-        "lanes": 2,
-        "speed_limit_kmh": 80
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            72.434,
-            24.172
-          ],
-          [
-            73.072,
-            23.597
-          ],
-          [
-            73.298,
-            23.463
-          ],
-          [
-            73.617,
-            23.132
-          ],
-          [
-            73.614,
-            22.775
-          ],
-          [
-            74.013,
-            22.308
-          ],
-          [
-            73.502,
-            21.871
-          ],
-          [
-            73.402,
-            21.112
-          ],
-          [
-            73.684,
-            20.758
-          ],
-          [
-            72.91,
-            20.389
-          ]
-        ]
-      },
-      "properties": {
-        "name": "Eastern Tribal & Mineral Corridor (NH-56)",
-        "road_type": "highway",
-        "surface": "paved",
-        "lanes": 2,
-        "speed_limit_kmh": 80
+        "lanes": 4,
+        "speed_limit_kmh": 100
       }
     },
     {
