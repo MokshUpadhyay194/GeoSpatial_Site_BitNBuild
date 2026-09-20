@@ -209,11 +209,7 @@ export const DrawToolbar: React.FC<DrawToolbarProps> = ({
       {!isDrawing && !hasShape && (
         <div className="absolute left-4 bottom-28 z-20">
           <div
-            className="flex items-center gap-1.5 p-1.5 rounded-full border shadow-lg backdrop-blur-md transition-all hover:scale-105"
-            style={{
-              background: 'rgba(15, 23, 42, 0.85)',
-              borderColor: 'rgba(71, 85, 105, 0.5)',
-            }}
+            className="flex items-center gap-1.5 p-1.5 rounded-full border border-slate-200/90 dark:border-slate-700/80 bg-surface/95 dark:bg-slate-900/95 shadow-lg backdrop-blur-md transition-all hover:scale-105 ring-1 ring-black/5"
           >
             <button
               type="button"

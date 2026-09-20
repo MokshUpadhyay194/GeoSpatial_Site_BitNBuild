@@ -287,3 +287,35 @@ async def generate_site_report(request: ReportExportRequest) -> Dict[str, Any]:
             status_code=500,
             detail=f"Failed to generate site readiness dossier: {str(e)}"
         )
+
+
+@router.get("/report/schema")
+async def get_report_schema() -> Dict[str, Any]:
+    """Retrieve OpenAPI and JSON Schema specification for Site Evaluation Dossiers."""
+    return {
+        "status": "ok",
+        "data": {
+            "title": "SiteReadinessEvaluationDossier",
+            "version": "1.0.0",
+            "request_schema": ReportExportRequest.model_json_schema() if hasattr(ReportExportRequest, "model_json_schema") else ReportExportRequest.schema(),
+            "sections": [
+                "metadata",
+                "site",
+                "evaluation",
+                "accessibility",
+                "nearby_commercial_anchors",
+                "spatial_geojson",
+                "csv_export"
+            ],
+            "supported_archetypes": [
+                "EV charging",
+                "Retail",
+                "Warehouse",
+                "Telecom",
+                "Solar",
+                "Wind"
+            ],
+            "export_formats": ["JSON", "GeoJSON", "CSV", "PDF/Print"]
+        }
+    }
+
