@@ -21,60 +21,48 @@
 
 ## 📐 System Architecture
 
-```mermaid
-graph TB
-    subgraph CLIENT["🖥️ Frontend — React 18 + Vite + TypeScript"]
-        direction LR
-        MAP["MapLibre GL JS<br/>Interactive Map"]
-        SCORE_UI["ScorePanel<br/>Animated Counter"]
-        RADAR["BreakdownChart<br/>Recharts Radar"]
-        COMPARE_UI["ComparePanel<br/>Multi-Site Matrix"]
-        ISO_UI["IsochronePanel<br/>Catchment KPIs"]
-        DRAW["DrawToolbar<br/>Polygon Drawing"]
-        LEGEND["HotspotLegend<br/>Z-Score Ramp"]
-    end
-
-    subgraph GATEWAY["⚡ API Gateway — FastAPI + Python 3.11"]
-        direction LR
-        HEALTH["/api/health"]
-        SCORE_API["/api/score<br/>POST — Composite Scoring"]
-        COMPARE_API["/api/compare<br/>POST — Rank Sites"]
-        HOTSPOT_API["/api/hotspots<br/>GET — Getis-Ord Gi*"]
-        CLUSTER_API["/api/clusters<br/>GET — DBSCAN"]
-        H3_API["/api/h3<br/>GET — Hex Binning"]
-        ISO_API["/api/isochrones<br/>GET — Travel Polygons"]
-        CATCH_API["/api/catchment<br/>POST — Pop. Reach"]
-        LAYERS_API["/api/layers<br/>GET — Layer Registry"]
-    end
-
-    subgraph ENGINE["🧠 Spatial Engine"]
-        direction LR
-        SCORING["Scoring Engine<br/>5-Layer Weighted<br/>Gaussian Decay"]
-        DBSCAN["DBSCAN Clustering<br/>Scikit-Learn"]
-        GETIS["Getis-Ord Gi*<br/>Hot/Cold Spots"]
-        H3_ENGINE["H3 Hexagonal<br/>Uber H3 res 4-9"]
-        ISOCHRONE["Isochrone Engine<br/>ORS + Fallback"]
-        CATCHMENT["Catchment Analysis<br/>Pop. Aggregation"]
-    end
-
-    subgraph DATA["💾 GeoJSON Data Store — File-Based"]
-        direction LR
-        DEMO["demographics.geojson<br/>500 census points"]
-        TRANS["transportation.geojson<br/>6 highway lines"]
-        POI["poi.geojson<br/>250 competitor points"]
-        LAND["landuse.geojson<br/>7 zoning parcels"]
-        ENV["environment.geojson<br/>4 flood/hazard zones"]
-        BOUND["gujarat_boundary.geojson"]
-    end
-
-    CLIENT -->|"HTTP/JSON via Vite Proxy :5173 → :8000"| GATEWAY
-    GATEWAY --> ENGINE
-    ENGINE --> DATA
-
-    style CLIENT fill:#0d1b2a,stroke:#38bdf8,stroke-width:2px,color:#e2e8f0
-    style GATEWAY fill:#1a0d2e,stroke:#a78bfa,stroke-width:2px,color:#e2e8f0
-    style ENGINE fill:#0d2818,stroke:#34d399,stroke-width:2px,color:#e2e8f0
-    style DATA fill:#2d1810,stroke:#fb923c,stroke-width:2px,color:#e2e8f0
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           PRESENTATION LAYER                            │
+│  React 18  •  TypeScript  •  Vite  •  MapLibre GL JS  •  TailwindCSS    │
+│                                                                         │
+│  • MapWorkspace (MapLibre GL)        • ScorePanel (Animated Readiness)  │
+│  • BreakdownChart (Recharts Radar)   • ComparePanel (Multi-Site Matrix) │
+│  • IsochronePanel (Travel Catchment) • DrawToolbar (Snipping Tool ROI)  │
+│  • WindPrimeSpotsBar (HUD)           • HotspotLegend (Z-Score Ramp)     │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │ HTTP / JSON REST API (Port 8000)
+┌────────────────────────────────────▼────────────────────────────────────┐
+│                           APPLICATION GATEWAY                           │
+│  FastAPI (Python 3.11)  •  Uvicorn  •  Pydantic v2  •  OpenAPI Docs     │
+│                                                                         │
+│  /api/score         /api/compare       /api/hotspots    /api/clusters   │
+│  /api/isochrones    /api/catchment     /api/wind/atlas  /api/reports    │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │
+┌────────────────────────────────────▼────────────────────────────────────┐
+│                         ANALYTIC COMPUTE ENGINES                        │
+│                                                                         │
+│  ┌─────────────────────────┐  ┌──────────────────────────────────────┐  │
+│  │  SiteReadinessScorer    │  │  Spatial Statistics Engine           │  │
+│  │  • 6 Archetype Profiles │  │  • Getis-Ord Gi* (libpysal/esda)     │  │
+│  │  • Gaussian Decay       │  │  • DBSCAN Clustering (scikit-learn)  │  │
+│  │  • Limiting Constraints │  │  • Uber H3 Hex Binning (h3-py)       │  │
+│  └─────────────────────────┘  └──────────────────────────────────────┘  │
+│  ┌─────────────────────────┐  ┌──────────────────────────────────────┐  │
+│  │  Wind & Solar Modeling  │  │  Accessibility Engine                │  │
+│  │  • NIWE 120m Wind Atlas │  │  • Isochrone Generation              │  │
+│  │  • GHI Solar Irradiance │  │  • Demographic Catchment Aggregation │  │
+│  └─────────────────────────┘  └──────────────────────────────────────┘  │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │
+┌────────────────────────────────────▼────────────────────────────────────┐
+│                           GEOSPATIAL DATA STORE                         │
+│                                                                         │
+│   demographics.geojson        poi.geojson          landuse.geojson      │
+│   transportation.geojson      environment.geojson  water_bodies.geojson │
+│   gujarat_boundary.geojson    gazetteer.json (0ms offline search)       │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
