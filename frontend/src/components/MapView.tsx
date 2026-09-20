@@ -240,7 +240,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>((
       // Smooth fly-to on new selection
       mapRef.current.flyTo({
         center: [selectedLocation.lng, selectedLocation.lat],
-        zoom: Math.max(mapRef.current.getZoom(), 10.5),
+        zoom: Math.max(mapRef.current.getZoom(), 13.5),
         speed: 1.2,
         curve: 1.4,
         essential: true,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   Search, MapPin, X, Loader2, Navigation,
-  Building2, Factory, Landmark, Anchor, Store, Compass,
+  Building2, Factory, Landmark, Compass,
 } from "lucide-react";
 
 export interface SearchResultItem {
@@ -15,60 +15,9 @@ export interface SearchResultItem {
   icon?: React.ComponentType<{ className?: string }>;
 }
 
-const LOCAL_FALLBACK_PRESETS: SearchResultItem[] = [
-  // --- AHMEDABAD & GANDHINAGAR ---
-  { id: "loc-sg-highway", name: "SG Highway Commercial Corridor", subTitle: "Bodakdev - Thaltej - Sola Arterial Axis, Ahmedabad", lat: 23.0378, lng: 72.5112, category: "benchmark", district: "Ahmedabad", icon: Building2 },
-  { id: "loc-gift-city", name: "GIFT City International FinTech Zone", subTitle: "India Flagship IFSC Smart City, Gandhinagar", lat: 23.1601, lng: 72.6841, category: "benchmark", district: "Gandhinagar", icon: Landmark },
-  { id: "loc-gandhinagar-central", name: "Gandhinagar Central (Sector 10-21)", subTitle: "Capital Administrative & Commercial Sector, Gandhinagar", lat: 23.2156, lng: 72.6369, category: "city", district: "Gandhinagar", icon: Landmark },
-  { id: "loc-sanand-gidc", name: "Sanand GIDC Mega Automotive Corridor", subTitle: "Heavy Industrial Auto OEM Cluster, Ahmedabad Rural", lat: 22.9868, lng: 72.3814, category: "benchmark", district: "Ahmedabad Rural", icon: Factory },
-  { id: "loc-bodakdev", name: "Bodakdev Urban Ward", subTitle: "SG Highway Judges Bungalow Precinct, Ahmedabad", lat: 23.0373, lng: 72.5074, category: "ward", district: "Ahmedabad", icon: MapPin },
-  { id: "loc-sbr", name: "Sindhu Bhavan Road (SBR)", subTitle: "High-Street Retail Corporate Corridor, Ahmedabad", lat: 23.0450, lng: 72.4980, category: "ward", district: "Ahmedabad", icon: Store },
-  { id: "loc-prahladnagar", name: "Prahlad Nagar Corporate Road", subTitle: "Makarba - Vejalpur Commercial Zone, Ahmedabad", lat: 23.0125, lng: 72.5085, category: "ward", district: "Ahmedabad", icon: Building2 },
-  { id: "loc-satellite", name: "Satellite & Shivranjani", subTitle: "Dense Mixed Commercial Residential Hub, Ahmedabad", lat: 23.0305, lng: 72.5178, category: "ward", district: "Ahmedabad", icon: MapPin },
-  { id: "loc-vastrapur", name: "Vastrapur Lake & IIM Ahmedabad", subTitle: "Institutional Premium Retail District, Ahmedabad", lat: 23.0350, lng: 72.5293, category: "ward", district: "Ahmedabad", icon: Landmark },
-  { id: "loc-navrangpura", name: "Navrangpura Commercial District", subTitle: "CG Road, Municipal Market Law Garden, Ahmedabad", lat: 23.0365, lng: 72.5611, category: "ward", district: "Ahmedabad", icon: Store },
-  { id: "loc-changodar", name: "Changodar Industrial & Logistics Park", subTitle: "Sarkhej-Bavla National Highway Freight Corridor", lat: 22.9234, lng: 72.4285, category: "industrial", district: "Ahmedabad Rural", icon: Factory },
+import { COMPREHENSIVE_PRESETS } from "@/data/nationalGazetteerPresets";
 
-  // --- VADODARA ---
-  { id: "loc-vadodara-central", name: "Vadodara Central Business District", subTitle: "Sayajigunj, Station Area & Alkapuri, Vadodara", lat: 22.3072, lng: 73.1812, category: "city", district: "Vadodara", icon: Building2 },
-  { id: "loc-vadodara-alkapuri", name: "Alkapuri Central Commercial Hub", subTitle: "R.C. Dutt Road Premier Business District, Vadodara", lat: 22.3106, lng: 73.1812, category: "benchmark", district: "Vadodara", icon: Store },
-  { id: "loc-vadodara-makarpura", name: "Makarpura GIDC Industrial Estate", subTitle: "Major Electrical & Heavy Engineering Hub, Vadodara", lat: 22.2536, lng: 73.1950, category: "industrial", district: "Vadodara", icon: Factory },
-  { id: "loc-vadodara-akota", name: "Akota & Gotri Commercial Corridor", subTitle: "West Vadodara High-Density Retail & Residential Axis", lat: 22.3015, lng: 73.1614, category: "city", district: "Vadodara", icon: Store },
-
-  // --- SURAT ---
-  { id: "loc-surat-central", name: "Surat Central & Ring Road Textile Market", subTitle: "Asia's Premier Textile & Fabric Trading Capital, Surat", lat: 21.1959, lng: 72.8302, category: "city", district: "Surat", icon: Building2 },
-  { id: "loc-surat-vesu", name: "Vesu Commercial Luxury Retail Hub", subTitle: "South Surat High-Density Premium Corridor, Surat", lat: 21.1442, lng: 72.7712, category: "city", district: "Surat", icon: Store },
-  { id: "loc-surat-diamond-bourse", name: "Surat Diamond Bourse (DREAM City)", subTitle: "Khajod Global Gems & Jewelry Trading Capital, Surat", lat: 21.1219, lng: 72.7661, category: "city", district: "Surat", icon: Landmark },
-  { id: "loc-surat-hazira", name: "Hazira Port Industrial Belt", subTitle: "Deep-Water LNG Steel Heavy Petrochemical Terminal, Surat", lat: 21.1158, lng: 72.6482, category: "industrial", district: "Surat", icon: Anchor },
-
-  // --- RAJKOT ---
-  { id: "loc-rajkot-ringroad", name: "150 Feet Ring Road Commercial Axis", subTitle: "West Rajkot Retail Hospitality Healthcare Corridor, Rajkot", lat: 22.2850, lng: 70.7680, category: "city", district: "Rajkot", icon: Building2 },
-  { id: "loc-rajkot-central", name: "Rajkot Central & Yagnik Road", subTitle: "Saurashtra Commercial & Financial Epicenter, Rajkot", lat: 22.3039, lng: 70.8022, category: "city", district: "Rajkot", icon: Building2 },
-  { id: "loc-rajkot-aji", name: "Aji GIDC & Shapar Industrial Zone", subTitle: "Engineering, Casting & Diesel Engine Capital, Rajkot", lat: 22.2514, lng: 70.8142, category: "industrial", district: "Rajkot", icon: Factory },
-
-  // --- BHAVNAGAR ---
-  { id: "loc-bhavnagar-city", name: "Bhavnagar Central & Waghawadi Road", subTitle: "Commercial High-Street & Civic Center, Bhavnagar", lat: 21.7645, lng: 72.1519, category: "city", district: "Bhavnagar", icon: Building2 },
-  { id: "loc-alang-shipyard", name: "Alang Ship Recycling & Marine Yard", subTitle: "World's Largest Ship Breaking Cluster, Bhavnagar", lat: 21.4167, lng: 72.1833, category: "industrial", district: "Bhavnagar", icon: Anchor },
-  { id: "loc-bhavnagar-chitra", name: "Chitra GIDC Industrial Estate", subTitle: "Plastics, Chemicals & Small-Scale Manufacturing, Bhavnagar", lat: 21.7856, lng: 72.1124, category: "industrial", district: "Bhavnagar", icon: Factory },
-
-  // --- JAMNAGAR & JUNAGADH ---
-  { id: "loc-jamnagar-refinery", name: "Jamnagar Petrochemical & Refining Belt", subTitle: "Motikhavdi World-Scale Refinery Complex, Jamnagar", lat: 22.4707, lng: 70.0577, category: "industrial", district: "Jamnagar", icon: Factory },
-  { id: "loc-jamnagar-city", name: "Jamnagar City & Brass Parts Cluster", subTitle: "Precision Hardware & Commercial Center, Jamnagar", lat: 22.4707, lng: 70.0724, category: "city", district: "Jamnagar", icon: Building2 },
-  { id: "loc-junagadh-city", name: "Junagadh Central Heritage & Civic Hub", subTitle: "Girnar Foothills Commercial & Tourism Center, Junagadh", lat: 21.5222, lng: 70.4579, category: "city", district: "Junagadh", icon: Landmark },
-
-  // --- KUTCH ---
-  { id: "loc-mundra-port", name: "Mundra Port SEZ Logistics Hub", subTitle: "Deep-Water Container Terminal Freight Corridor, Kutch", lat: 22.8394, lng: 69.7214, category: "benchmark", district: "Kutch", icon: Anchor },
-  { id: "loc-gandhidham-kandla", name: "Gandhidham & Deendayal Port (Kandla)", subTitle: "Major Dry Cargo Port, Timber & Logistics Node, Kutch", lat: 23.0753, lng: 70.1337, category: "industrial", district: "Kutch", icon: Anchor },
-  { id: "loc-bhuj-city", name: "Bhuj Central Heritage & Commercial Hub", subTitle: "Kutch District Headquarters & Transport Node, Bhuj", lat: 23.2420, lng: 69.6669, category: "city", district: "Kutch", icon: Building2 },
-
-  // --- BHARUCH, ANAND, VAPI ---
-  { id: "loc-dahej-pcpir", name: "Dahej PCPIR & Port Terminal", subTitle: "Petrochemicals & Petroleum Investment Zone, Bharuch", lat: 21.7125, lng: 72.5855, category: "industrial", district: "Bharuch", icon: Factory },
-  { id: "loc-ankleshwar-gidc", name: "Ankleshwar GIDC Chemical Estate", subTitle: "Asia's Foremost Chemical & Pharma Cluster, Bharuch", lat: 21.6264, lng: 73.0031, category: "industrial", district: "Bharuch", icon: Factory },
-  { id: "loc-anand-amul", name: "Anand Agri & Amul Dairy Corridor", subTitle: "India's Dairy Capital & Agro-Processing Zone, Anand", lat: 22.5645, lng: 72.9289, category: "city", district: "Anand", icon: Landmark },
-  { id: "loc-vapi-gidc", name: "Vapi Mega GIDC Industrial Estate", subTitle: "Chemicals, Paper, Dyes & Packaging Hub, Valsad", lat: 20.3893, lng: 72.9106, category: "industrial", district: "Valsad", icon: Factory },
-  { id: "loc-morbi-ceramic", name: "Morbi Ceramic Industrial Cluster", subTitle: "National Ceramic Tile & Sanitaryware Capital, Morbi", lat: 22.8120, lng: 70.8380, category: "industrial", district: "Morbi", icon: Factory },
-  { id: "loc-dholera-sir", name: "Dholera Special Investment Region (SIR)", subTitle: "Greenfield Smart Industrial City & Semiconductor Node", lat: 22.2472, lng: 72.1908, category: "industrial", district: "Ahmedabad Rural", icon: Landmark },
-];
+const LOCAL_FALLBACK_PRESETS: SearchResultItem[] = COMPREHENSIVE_PRESETS;
 
 function getCategoryIcon(category?: string): React.ComponentType<{ className?: string }> {
   switch (category) {
