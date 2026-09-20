@@ -17,3 +17,6 @@ APP_VERSION = "1.0.0"
 
 # Gujarat bounding box [min_lng, min_lat, max_lng, max_lat]
 GUJARAT_BBOX = [68.1, 20.1, 74.5, 24.7]
+
+# India geographic bounding box [min_lng, min_lat, max_lng, max_lat]
+INDIA_BBOX = [68.0, 6.5, 97.5, 37.5]

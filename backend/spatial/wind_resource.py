@@ -19,7 +19,7 @@ except ImportError:
     from utils.geo_helpers import haversine_distance
 
 
-# High-wind anchor epicenters across Gujarat (Latitude, Longitude, Mean annual wind speed m/s at 120m)
+# High-wind anchor epicenters across Gujarat and all of India (Latitude, Longitude, Mean annual wind speed m/s at 120m)
 GUJARAT_WIND_EPICENTERS = [
     # --- Coastal Kutch Belt (Highest Wind Potential in India) ---
     {"name": "Jakhau Coast, Kutch", "lat": 23.238, "lng": 68.705, "speed": 8.4, "radius_km": 65.0},
@@ -46,6 +46,48 @@ GUJARAT_WIND_EPICENTERS = [
     {"name": "Surat Coastal Valley", "lat": 21.170, "lng": 72.831, "speed": 4.6, "radius_km": 45.0},
 ]
 
+# High-wind anchor epicenters across top NIWE wind states in India
+INDIA_WIND_EPICENTERS = [
+    # --- Tamil Nadu (Southern Wind Corridor) ---
+    {"name": "Muppandal / Kanyakumari Wind Farm, TN", "lat": 8.256, "lng": 77.545, "speed": 8.9, "radius_km": 70.0},
+    {"name": "Kayathar / Tirunelveli Wind Hub, TN", "lat": 8.948, "lng": 77.771, "speed": 8.3, "radius_km": 60.0},
+    {"name": "Coimbatore / Palakkad Pass / Udumalpet, TN", "lat": 10.584, "lng": 77.247, "speed": 7.8, "radius_km": 65.0},
+    {"name": "Theni / Cumbum Wind Valley, TN", "lat": 9.920, "lng": 77.470, "speed": 7.6, "radius_km": 55.0},
+
+    # --- Rajasthan (Desert & Western Ridge) ---
+    {"name": "Jaisalmer Wind Park Complex, RJ", "lat": 26.915, "lng": 70.908, "speed": 7.9, "radius_km": 85.0},
+    {"name": "Phalodi / Bikaner Renewable Corridor, RJ", "lat": 27.130, "lng": 72.360, "speed": 7.2, "radius_km": 75.0},
+    {"name": "Barmer Desert Ridgeline, RJ", "lat": 25.750, "lng": 71.390, "speed": 7.4, "radius_km": 70.0},
+
+    # --- Karnataka (Deccan Wind Pass) ---
+    {"name": "Chitradurga Wind Belt, KA", "lat": 14.225, "lng": 76.400, "speed": 7.6, "radius_km": 65.0},
+    {"name": "Gadag / Kappatagudda Hills, KA", "lat": 15.420, "lng": 75.630, "speed": 7.5, "radius_km": 60.0},
+    {"name": "Belagavi / Chikkodi Plateau, KA", "lat": 16.100, "lng": 74.550, "speed": 7.2, "radius_km": 55.0},
+
+    # --- Maharashtra (Western Ghats & Plateaus) ---
+    {"name": "Satara / Chalkewadi Plateau, MH", "lat": 17.680, "lng": 73.830, "speed": 7.7, "radius_km": 60.0},
+    {"name": "Dhule / Sakri Wind Corridor, MH", "lat": 20.900, "lng": 74.300, "speed": 7.3, "radius_km": 65.0},
+    {"name": "Sangli / Jath Plateau, MH", "lat": 17.050, "lng": 75.220, "speed": 7.1, "radius_km": 55.0},
+
+    # --- Andhra Pradesh & Telangana ---
+    {"name": "Anantapur / Tadipatri Wind Corridor, AP", "lat": 14.680, "lng": 77.600, "speed": 7.6, "radius_km": 70.0},
+    {"name": "Kurnool / Aspari Plateau, AP", "lat": 15.830, "lng": 78.030, "speed": 7.4, "radius_km": 65.0},
+
+    # --- Madhya Pradesh (Malwa Plateau) ---
+    {"name": "Dewas / Jamgodrani Hill, MP", "lat": 22.960, "lng": 76.050, "speed": 6.8, "radius_km": 55.0},
+    {"name": "Ratlam / Mandsaur Wind Belt, MP", "lat": 23.330, "lng": 75.040, "speed": 6.7, "radius_km": 60.0},
+
+    # --- Major Urban Basins (Low Wind Reference Points) ---
+    {"name": "Mumbai Metropolitan Coastal Basin", "lat": 19.076, "lng": 72.877, "speed": 4.9, "radius_km": 55.0},
+    {"name": "Delhi-NCR Gangetic Basin", "lat": 28.614, "lng": 77.209, "speed": 3.8, "radius_km": 65.0},
+    {"name": "Bengaluru Urban Plateau", "lat": 12.972, "lng": 77.595, "speed": 5.4, "radius_km": 55.0},
+    {"name": "Hyderabad Deccan Ridge", "lat": 17.385, "lng": 78.487, "speed": 5.2, "radius_km": 55.0},
+    {"name": "Kolkata Lower Gangetic Plain", "lat": 22.572, "lng": 88.363, "speed": 3.7, "radius_km": 65.0},
+    {"name": "Chennai Coromandel Strip", "lat": 13.082, "lng": 80.270, "speed": 5.1, "radius_km": 55.0},
+]
+
+ALL_WIND_EPICENTERS = GUJARAT_WIND_EPICENTERS + INDIA_WIND_EPICENTERS
+
 
 def estimate_wind_speed(lat: float, lng: float) -> Tuple[float, str]:
     """Inverse-distance-weighted spatial estimation of mean annual wind speed (m/s at 120m hub height)."""
@@ -54,7 +96,7 @@ def estimate_wind_speed(lat: float, lng: float) -> Tuple[float, str]:
     closest_anchor = None
     min_dist_km = float("inf")
 
-    for anchor in GUJARAT_WIND_EPICENTERS:
+    for anchor in ALL_WIND_EPICENTERS:
         d_km = haversine_distance(lat, lng, anchor["lat"], anchor["lng"], unit="km")
         if d_km < min_dist_km:
             min_dist_km = d_km
@@ -69,15 +111,31 @@ def estimate_wind_speed(lat: float, lng: float) -> Tuple[float, str]:
     if weights_sum > 0.001:
         speed = weighted_speed_sum / weights_sum
     else:
-        # Geographic fallback based on longitude (Western Gujarat is windy; Eastern is sheltered)
-        if lng <= 70.5:
-            speed = 7.2  # Kutch/West Saurashtra
-        elif lng <= 71.8:
-            speed = 6.4  # Central Saurashtra
+        # Nationwide regional geographical fallback calibrated to NIWE 120m atlas
+        if 20.0 <= lat <= 24.8 and 68.0 <= lng <= 74.5:
+            # Gujarat Region
+            if lng <= 70.5:
+                speed = 7.2  # Kutch / West Saurashtra
+            elif lng <= 71.8:
+                speed = 6.4  # Central Saurashtra
+            else:
+                speed = 4.2  # Mainland Gujarat
+        elif lat <= 12.0:
+            speed = 6.8  # Southern Peninsular high-wind zone (Tamil Nadu / Kerala gap)
+        elif 12.0 < lat <= 16.5 and 74.5 <= lng <= 78.5:
+            speed = 6.6  # Karnataka / Rayalaseema Deccan plateau
+        elif 24.5 <= lat <= 29.5 and 69.5 <= lng <= 75.5:
+            speed = 6.8  # Western Rajasthan desert belt
+        elif 16.5 < lat <= 21.0 and 73.0 <= lng <= 76.5:
+            speed = 6.2  # Maharashtra Western Ghats / Plateau
+        elif lat >= 25.0 and 76.0 <= lng <= 88.0:
+            speed = 3.9  # Indo-Gangetic sheltered plains
+        elif 80.0 <= lng <= 87.0 and 15.0 <= lat <= 22.0:
+            speed = 5.2  # Eastern coastal / Odisha / AP plain
         else:
-            speed = 4.2  # Mainland Gujarat
+            speed = 4.8  # National average default
 
-    return round(speed, 2), closest_anchor or "Gujarat Regional Wind Field"
+    return round(speed, 2), closest_anchor or "National Wind Resource Field"
 
 
 # Empirical Gujarat Monthly Wind Multipliers (derived from NIWE & IMD long-term weather records)

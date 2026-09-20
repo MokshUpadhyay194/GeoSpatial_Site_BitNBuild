@@ -39,8 +39,8 @@ def get_scorer() -> SiteReadinessScorer:
 
 
 class ReportExportRequest(BaseModel):
-    lat: float = Field(..., ge=20.0, le=25.0, description="Latitude in Gujarat (20.0 to 25.0)")
-    lng: float = Field(..., ge=68.0, le=75.0, description="Longitude in Gujarat (68.0 to 75.0)")
+    lat: float = Field(..., ge=6.0, le=38.0, description="Latitude across India / Gujarat (6.0 to 38.0)")
+    lng: float = Field(..., ge=68.0, le=98.0, description="Longitude across India / Gujarat (68.0 to 98.0)")
     location_name: Optional[str] = Field("Selected Candidate Site", description="Descriptive name of location")
     site_type: Optional[str] = Field("EV charging", description="Site profile: 'EV charging', 'Retail', 'Warehouse'")
     minutes: Optional[int] = Field(15, ge=5, le=60, description="Catchment travel time in minutes")

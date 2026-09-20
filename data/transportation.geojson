@@ -7,32 +7,104 @@
         "type": "LineString",
         "coordinates": [
           [
-            72.5714,
-            23.0225
+            77.209,
+            28.614
           ],
           [
-            72.6369,
-            23.2156
+            77.026,
+            28.459
           ],
           [
-            72.9289,
-            22.5645
+            76.271,
+            27.897
           ],
           [
-            73.1812,
-            22.3072
+            75.787,
+            26.912
           ],
           [
-            72.9959,
-            21.7051
+            74.639,
+            26.449
           ],
           [
-            72.8311,
-            21.1702
+            73.712,
+            24.585
           ],
           [
-            72.85,
-            20.3
+            72.95,
+            23.85
+          ],
+          [
+            72.571,
+            23.022
+          ],
+          [
+            72.863,
+            22.691
+          ],
+          [
+            73.181,
+            22.307
+          ],
+          [
+            72.995,
+            21.705
+          ],
+          [
+            72.831,
+            21.17
+          ],
+          [
+            72.952,
+            20.946
+          ],
+          [
+            72.93,
+            20.61
+          ],
+          [
+            72.91,
+            20.389
+          ],
+          [
+            72.877,
+            19.076
+          ],
+          [
+            73.856,
+            18.52
+          ],
+          [
+            74.581,
+            16.852
+          ],
+          [
+            74.497,
+            15.849
+          ],
+          [
+            75.124,
+            15.364
+          ],
+          [
+            75.921,
+            14.464
+          ],
+          [
+            77.1,
+            13.34
+          ],
+          [
+            77.594,
+            12.971
+          ],
+          [
+            79.132,
+            12.916
+          ],
+          [
+            80.27,
+            13.082
           ]
         ]
       },
@@ -41,6 +113,188 @@
         "road_type": "highway",
         "surface": "paved",
         "lanes": 6,
+        "speed_limit_kmh": 120
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            74.797,
+            34.083
+          ],
+          [
+            74.857,
+            32.726
+          ],
+          [
+            74.872,
+            31.634
+          ],
+          [
+            75.857,
+            30.901
+          ],
+          [
+            76.963,
+            29.39
+          ],
+          [
+            77.209,
+            28.614
+          ],
+          [
+            78.008,
+            27.176
+          ],
+          [
+            78.182,
+            26.218
+          ],
+          [
+            78.568,
+            25.448
+          ],
+          [
+            78.74,
+            24.18
+          ],
+          [
+            79.088,
+            21.145
+          ],
+          [
+            78.532,
+            19.664
+          ],
+          [
+            78.486,
+            17.385
+          ],
+          [
+            78.037,
+            15.828
+          ],
+          [
+            77.6,
+            14.681
+          ],
+          [
+            77.594,
+            12.971
+          ],
+          [
+            78.146,
+            11.664
+          ],
+          [
+            78.119,
+            9.925
+          ],
+          [
+            77.545,
+            8.256
+          ]
+        ]
+      },
+      "properties": {
+        "name": "NH-44 North-South Corridor",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 6,
+        "speed_limit_kmh": 120
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            69.609,
+            21.641
+          ],
+          [
+            70.25,
+            21.75
+          ],
+          [
+            70.802,
+            22.303
+          ],
+          [
+            70.83,
+            22.82
+          ],
+          [
+            70.6,
+            23.25
+          ],
+          [
+            71.05,
+            23.48
+          ],
+          [
+            71.6,
+            23.83
+          ],
+          [
+            72.434,
+            24.172
+          ],
+          [
+            73.712,
+            24.585
+          ],
+          [
+            74.626,
+            24.888
+          ],
+          [
+            75.864,
+            25.213
+          ],
+          [
+            78.568,
+            25.448
+          ],
+          [
+            80.331,
+            26.449
+          ],
+          [
+            80.946,
+            26.846
+          ],
+          [
+            83.373,
+            26.76
+          ],
+          [
+            85.36,
+            26.12
+          ],
+          [
+            87.47,
+            25.77
+          ],
+          [
+            88.395,
+            26.727
+          ],
+          [
+            91.736,
+            26.144
+          ]
+        ]
+      },
+      "properties": {
+        "name": "NH-27 East-West Arterial Corridor",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 4,
         "speed_limit_kmh": 100
       }
     },
@@ -50,33 +304,352 @@
         "type": "LineString",
         "coordinates": [
           [
-            72.65,
-            23.01
+            80.27,
+            13.082
           ],
           [
-            72.78,
-            22.82
+            79.986,
+            14.442
           ],
           [
-            72.93,
-            22.57
+            80.049,
+            15.505
           ],
           [
-            73.1,
-            22.42
+            80.436,
+            16.306
           ],
           [
-            73.1812,
-            22.3072
+            80.648,
+            16.506
+          ],
+          [
+            81.804,
+            17.0
+          ],
+          [
+            83.218,
+            17.686
+          ],
+          [
+            83.893,
+            18.294
+          ],
+          [
+            84.794,
+            19.314
+          ],
+          [
+            85.824,
+            20.296
+          ],
+          [
+            85.882,
+            20.462
+          ],
+          [
+            86.933,
+            21.493
+          ],
+          [
+            87.323,
+            22.33
+          ],
+          [
+            88.363,
+            22.572
           ]
         ]
       },
       "properties": {
-        "name": "NE-1 Ahmedabad-Vadodara Expressway",
+        "name": "NH-16 Eastern Coastal Corridor",
         "road_type": "highway",
         "surface": "paved",
-        "lanes": 4,
+        "lanes": 6,
         "speed_limit_kmh": 120
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            77.209,
+            28.614
+          ],
+          [
+            77.673,
+            27.492
+          ],
+          [
+            78.008,
+            27.176
+          ],
+          [
+            79.027,
+            26.775
+          ],
+          [
+            80.331,
+            26.449
+          ],
+          [
+            80.812,
+            25.929
+          ],
+          [
+            81.846,
+            25.435
+          ],
+          [
+            82.973,
+            25.317
+          ],
+          [
+            84.015,
+            24.953
+          ],
+          [
+            85.0,
+            24.795
+          ],
+          [
+            86.43,
+            23.795
+          ],
+          [
+            86.966,
+            23.688
+          ],
+          [
+            87.311,
+            23.52
+          ],
+          [
+            88.363,
+            22.572
+          ]
+        ]
+      },
+      "properties": {
+        "name": "NH-19 Grand Trunk Highway",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 6,
+        "speed_limit_kmh": 120
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            77.209,
+            28.614
+          ],
+          [
+            77.05,
+            28.25
+          ],
+          [
+            76.5,
+            26.9
+          ],
+          [
+            76.2,
+            25.8
+          ],
+          [
+            75.5,
+            24.5
+          ],
+          [
+            74.9,
+            23.5
+          ],
+          [
+            74.255,
+            22.836
+          ],
+          [
+            73.614,
+            22.775
+          ],
+          [
+            73.473,
+            22.498
+          ],
+          [
+            73.181,
+            22.307
+          ],
+          [
+            72.995,
+            21.705
+          ],
+          [
+            72.831,
+            21.17
+          ],
+          [
+            72.91,
+            20.389
+          ],
+          [
+            72.877,
+            19.076
+          ]
+        ]
+      },
+      "properties": {
+        "name": "NE-1 & Delhi-Mumbai Expressway",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 6,
+        "speed_limit_kmh": 120
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            69.666,
+            23.242
+          ],
+          [
+            69.355,
+            22.833
+          ],
+          [
+            68.967,
+            22.239
+          ],
+          [
+            69.609,
+            21.641
+          ],
+          [
+            70.367,
+            20.907
+          ],
+          [
+            71.77,
+            21.09
+          ],
+          [
+            72.151,
+            21.764
+          ],
+          [
+            72.19,
+            22.247
+          ],
+          [
+            72.571,
+            23.022
+          ]
+        ]
+      },
+      "properties": {
+        "name": "Saurashtra & Kutch Coastal Highway Link",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 2,
+        "speed_limit_kmh": 80
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            72.571,
+            23.022
+          ],
+          [
+            72.636,
+            23.215
+          ],
+          [
+            72.369,
+            23.588
+          ],
+          [
+            72.13,
+            23.85
+          ],
+          [
+            72.434,
+            24.172
+          ]
+        ]
+      },
+      "properties": {
+        "name": "North Gujarat Highway (SH-41)",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 2,
+        "speed_limit_kmh": 80
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            72.434,
+            24.172
+          ],
+          [
+            73.072,
+            23.597
+          ],
+          [
+            73.298,
+            23.463
+          ],
+          [
+            73.617,
+            23.132
+          ],
+          [
+            73.614,
+            22.775
+          ],
+          [
+            74.013,
+            22.308
+          ],
+          [
+            73.502,
+            21.871
+          ],
+          [
+            73.402,
+            21.112
+          ],
+          [
+            73.684,
+            20.758
+          ],
+          [
+            72.91,
+            20.389
+          ]
+        ]
+      },
+      "properties": {
+        "name": "Eastern Tribal & Mineral Corridor (NH-56)",
+        "road_type": "highway",
+        "surface": "paved",
+        "lanes": 2,
+        "speed_limit_kmh": 80
       }
     },
     {
@@ -103,7 +676,7 @@
         ]
       },
       "properties": {
-        "name": "SG Highway (Ahmedabad Arterial)",
+        "name": "SG Highway Commercial Corridor, Ahmedabad",
         "road_type": "primary",
         "surface": "paved",
         "lanes": 6,
@@ -146,7 +719,7 @@
         ]
       },
       "properties": {
-        "name": "SP Ring Road (Ahmedabad Orbital)",
+        "name": "SP Ring Road (Ahmedabad Orbital Expressway)",
         "road_type": "primary",
         "surface": "paved",
         "lanes": 4,
@@ -173,7 +746,7 @@
         ]
       },
       "properties": {
-        "name": "Surat-Dumas Commercial Corridor",
+        "name": "Surat-Dumas Commercial Express Link",
         "road_type": "primary",
         "surface": "paved",
         "lanes": 4,
@@ -186,28 +759,98 @@
         "type": "LineString",
         "coordinates": [
           [
-            70.8022,
-            22.3039
+            72.8242,
+            18.9256
           ],
           [
-            71.3,
-            22.5
+            72.845,
+            18.96
           ],
           [
-            71.8,
-            22.7
+            72.8687,
+            19.0657
           ],
           [
-            72.5714,
-            23.0225
+            72.93,
+            19.16
           ]
         ]
       },
       "properties": {
-        "name": "Rajkot-Ahmedabad Highway (NH-47)",
-        "road_type": "highway",
+        "name": "Eastern Freeway & Marine Drive, Mumbai",
+        "road_type": "primary",
         "surface": "paved",
-        "lanes": 4,
+        "lanes": 6,
+        "speed_limit_kmh": 80
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            77.48,
+            12.85
+          ],
+          [
+            77.52,
+            12.92
+          ],
+          [
+            77.56,
+            13.04
+          ],
+          [
+            77.62,
+            13.08
+          ]
+        ]
+      },
+      "properties": {
+        "name": "NICE Peripheral Ring Road, Bengaluru",
+        "road_type": "primary",
+        "surface": "paved",
+        "lanes": 6,
+        "speed_limit_kmh": 100
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            78.32,
+            17.42
+          ],
+          [
+            78.4,
+            17.55
+          ],
+          [
+            78.58,
+            17.48
+          ],
+          [
+            78.55,
+            17.32
+          ],
+          [
+            78.36,
+            17.35
+          ],
+          [
+            78.32,
+            17.42
+          ]
+        ]
+      },
+      "properties": {
+        "name": "Outer Ring Road (Nehru ORR), Hyderabad",
+        "road_type": "primary",
+        "surface": "paved",
+        "lanes": 8,
         "speed_limit_kmh": 100
       }
     }
