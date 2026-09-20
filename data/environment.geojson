@@ -46,44 +46,6 @@
         "coordinates": [
           [
             [
-              72.59,
-              23.08
-            ],
-            [
-              72.62,
-              23.08
-            ],
-            [
-              72.63,
-              23.15
-            ],
-            [
-              72.6,
-              23.15
-            ],
-            [
-              72.59,
-              23.08
-            ]
-          ]
-        ]
-      },
-      "properties": {
-        "hazard": "Sabarmati Upstream Basin Buffer",
-        "risk_level": "medium",
-        "flood_return_years": 50,
-        "river": "Sabarmati",
-        "elevation_m": 54.0,
-        "is_exclusion": false
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
               72.3,
               21.6
             ],
@@ -150,6 +112,158 @@
         "flood_return_years": 30,
         "river": "Tapi",
         "elevation_m": 14.0,
+        "is_exclusion": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.95,
+              21.72
+            ],
+            [
+              73.2,
+              21.72
+            ],
+            [
+              73.2,
+              21.8
+            ],
+            [
+              72.95,
+              21.8
+            ],
+            [
+              72.95,
+              21.72
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "hazard": "Narmada River Alluvial Floodplain Buffer",
+        "risk_level": "medium",
+        "flood_return_years": 35,
+        "river": "Narmada",
+        "elevation_m": 22.0,
+        "is_exclusion": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              69.0,
+              23.8
+            ],
+            [
+              70.5,
+              23.8
+            ],
+            [
+              70.5,
+              24.4
+            ],
+            [
+              69.0,
+              24.4
+            ],
+            [
+              69.0,
+              23.8
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "hazard": "Great Rann Saline Tidal Inundation",
+        "risk_level": "high",
+        "flood_return_years": 5,
+        "river": "Saline Wetland",
+        "elevation_m": 4.0,
+        "is_exclusion": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.81,
+              18.98
+            ],
+            [
+              72.85,
+              18.98
+            ],
+            [
+              72.85,
+              19.04
+            ],
+            [
+              72.81,
+              19.04
+            ],
+            [
+              72.81,
+              18.98
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "hazard": "Mumbai Coastal Regulation Zone & Mithi Basin",
+        "risk_level": "high",
+        "flood_return_years": 15,
+        "river": "Arabian Sea / Mithi",
+        "elevation_m": 6.0,
+        "is_exclusion": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              77.24,
+              28.62
+            ],
+            [
+              77.27,
+              28.62
+            ],
+            [
+              77.27,
+              28.69
+            ],
+            [
+              77.24,
+              28.69
+            ],
+            [
+              77.24,
+              28.62
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "hazard": "Yamuna River Riparian Floodplain (Delhi)",
+        "risk_level": "medium",
+        "flood_return_years": 20,
+        "river": "Yamuna",
+        "elevation_m": 208.0,
         "is_exclusion": false
       }
     }

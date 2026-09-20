@@ -116,7 +116,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>((
       style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
       center: selectedLocation ? [selectedLocation.lng, selectedLocation.lat] : GUJARAT_CENTER,
       zoom: selectedLocation ? 10.5 : DEFAULT_ZOOM,
-      minZoom: 5.5,
+      minZoom: 4.0,
       maxZoom: 18,
       doubleClickZoom: false,
       attributionControl: false,

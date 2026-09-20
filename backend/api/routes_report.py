@@ -39,8 +39,8 @@ def get_scorer() -> SiteReadinessScorer:
 
 
 class ReportExportRequest(BaseModel):
-    lat: float = Field(..., ge=20.0, le=25.0, description="Latitude in Gujarat (20.0 to 25.0)")
-    lng: float = Field(..., ge=68.0, le=75.0, description="Longitude in Gujarat (68.0 to 75.0)")
+    lat: float = Field(..., ge=6.0, le=38.0, description="Latitude across India / Gujarat (6.0 to 38.0)")
+    lng: float = Field(..., ge=68.0, le=98.0, description="Longitude across India / Gujarat (68.0 to 98.0)")
     location_name: Optional[str] = Field("Selected Candidate Site", description="Descriptive name of location")
     site_type: Optional[str] = Field("EV charging", description="Site profile: 'EV charging', 'Retail', 'Warehouse'")
     minutes: Optional[int] = Field(15, ge=5, le=60, description="Catchment travel time in minutes")
@@ -287,3 +287,35 @@ async def generate_site_report(request: ReportExportRequest) -> Dict[str, Any]:
             status_code=500,
             detail=f"Failed to generate site readiness dossier: {str(e)}"
         )
+
+
+@router.get("/report/schema")
+async def get_report_schema() -> Dict[str, Any]:
+    """Retrieve OpenAPI and JSON Schema specification for Site Evaluation Dossiers."""
+    return {
+        "status": "ok",
+        "data": {
+            "title": "SiteReadinessEvaluationDossier",
+            "version": "1.0.0",
+            "request_schema": ReportExportRequest.model_json_schema() if hasattr(ReportExportRequest, "model_json_schema") else ReportExportRequest.schema(),
+            "sections": [
+                "metadata",
+                "site",
+                "evaluation",
+                "accessibility",
+                "nearby_commercial_anchors",
+                "spatial_geojson",
+                "csv_export"
+            ],
+            "supported_archetypes": [
+                "EV charging",
+                "Retail",
+                "Warehouse",
+                "Telecom",
+                "Solar",
+                "Wind"
+            ],
+            "export_formats": ["JSON", "GeoJSON", "CSV", "PDF/Print"]
+        }
+    }
+

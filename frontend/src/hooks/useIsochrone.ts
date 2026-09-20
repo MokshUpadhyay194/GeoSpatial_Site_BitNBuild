@@ -123,6 +123,33 @@ export function useIsochrone(location: { lat: number; lng: number } | null): Iso
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Synchronously update the shape during render so there is 0ms delay between the marker and shape
+  const [lastParams, setLastParams] = useState<{
+    lat: number;
+    lng: number;
+    minutes: number;
+    mode: TravelMode;
+  } | null>(
+    location ? { lat: location.lat, lng: location.lng, minutes: 15, mode: 'driving' } : null
+  );
+
+  if (
+    location &&
+    (!lastParams ||
+      lastParams.lat !== location.lat ||
+      lastParams.lng !== location.lng ||
+      lastParams.minutes !== minutes ||
+      lastParams.mode !== mode)
+  ) {
+    setLastParams({ lat: location.lat, lng: location.lng, minutes, mode });
+    setIsochroneData(generateFallbackIsochrone(location.lat, location.lng, minutes, mode));
+    setCatchmentData(generateFallbackCatchment(location.lat, location.lng, minutes, mode));
+  } else if (!location && lastParams !== null) {
+    setLastParams(null);
+    setIsochroneData(null);
+    setCatchmentData(null);
+  }
+
   const fetchIsochrone = useCallback(async () => {
     if (!location) return;
 
@@ -130,17 +157,9 @@ export function useIsochrone(location: { lat: number; lng: number } | null): Iso
     setError(null);
 
     try {
-      // 1. Fetch Isochrone Polygon
       const isoUrl = `/api/isochrones?lat=${location.lat}&lng=${location.lng}&minutes=${minutes}&mode=${mode}`;
-      const isoRes = await fetch(isoUrl);
-
-      let isoJson = null;
-      if (isoRes.ok) {
-        isoJson = await isoRes.json();
-      }
-
-      // 2. Fetch Catchment Demographics
-      const catchRes = await fetch('/api/catchment', {
+      const isoPromise = fetch(isoUrl);
+      const catchPromise = fetch('/api/catchment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -151,7 +170,15 @@ export function useIsochrone(location: { lat: number; lng: number } | null): Iso
         }),
       });
 
+      // Parallelize requests to prevent unnecessary latency
+      const [isoRes, catchRes] = await Promise.all([isoPromise, catchPromise]);
+
+      let isoJson = null;
       let catchJson = null;
+
+      if (isoRes.ok) {
+        isoJson = await isoRes.json();
+      }
       if (catchRes.ok) {
         const payload = await catchRes.json();
         if (payload.status === 'ok' && payload.data) {
@@ -159,7 +186,6 @@ export function useIsochrone(location: { lat: number; lng: number } | null): Iso
         }
       }
 
-      // If backend returned live results, set state
       if (isoJson && catchJson) {
         setIsochroneData(isoJson);
         setCatchmentData(catchJson);
@@ -167,14 +193,9 @@ export function useIsochrone(location: { lat: number; lng: number } | null): Iso
         return;
       }
     } catch {
-      // Graceful fallback on network/backend offline
+      // Instant client-side fallback is already active
     }
 
-    // Client-side deterministic fallback
-    const fallbackIso = generateFallbackIsochrone(location.lat, location.lng, minutes, mode);
-    const fallbackCatch = generateFallbackCatchment(location.lat, location.lng, minutes, mode);
-    setIsochroneData(fallbackIso);
-    setCatchmentData(fallbackCatch);
     setIsLoading(false);
   }, [location?.lat, location?.lng, minutes, mode]);
 

@@ -10,11 +10,12 @@
 **GeoSpatial Site Readiness Analyzer** is an AI-powered location intelligence and spatial analytics platform tailored for evaluating industrial, commercial, and retail site viability across Gujarat, India. By ingesting and cross-referencing multi-layer geospatial datasets—demographics, arterial highways, commercial competitor points of interest (POIs), municipal land-use parcels, and environmental flood hazards—the system provides decision-makers with instant site scoring, statistical clustering, and accessibility reach analytics.
 
 ### 🌟 Key Features
-- **Composite 5-Layer Site Scoring**: Real-time evaluation engine applying Gaussian distance decay, penalty thresholding (flood hazard zones, road setbacks), and configurable industry weights (EV Charging, Retail, Industrial, Warehouse).
+- **Composite 6-Archetype Site Scoring**: Real-time evaluation engine with customized rule profiles and weights for **EV Fast Charging**, **Retail Commercial**, **Industrial Warehouse**, **5G Telecom**, **Solar Utility PV**, and **Wind Turbine**.
+- **Renewable Resource Intelligence**: Gujarat NIWE/VORTEX 120m hub-height wind atlas interpolation, seasonal wind speed profiles, CUF estimation, and water-body setback disqualification constraints.
 - **Advanced Spatial Analytics**: Getis-Ord Gi* statistical hot/cold spot detection (90/95/99% confidence), DBSCAN spatial clustering for POI density, and multi-resolution Uber H3 hexagonal binning.
 - **Multi-Modal Catchment & Isochrones**: Driving, walking, and cycling travel-time contour generation paired with demographic population catchment and competitor counts across 5, 10, 15, and 30-minute horizons.
 - **Interactive Freeform Drawing & Custom Scoring**: User-defined polygon and rectangle ROI boundary drawing with live area calculation and aggregated site score computation via Turf.js.
-- **Multi-Site Comparison & Dossier Export**: Side-by-side candidate comparison matrix, radar factor breakdowns, and downloadable/printable executive assessment dossiers.
+- **Multi-Site Comparison & Dossier Export**: Side-by-side candidate comparison matrix, radar factor breakdowns, downloadable JSON/CSV reports, and printable executive assessment dossiers.
 
 ---
 

@@ -18,6 +18,16 @@ try:
     from backend.utils.geo_helpers import haversine_distance
     from backend.api.routes_layers import _get_fallback_geojson
     from backend.spatial.wind_resource import get_wind_resource_score
+    from backend.spatial.india_spatial import (
+        get_hierarchical_settlement,
+        get_hierarchical_demographics_score,
+        get_hierarchical_transport,
+        get_hierarchical_transport_score,
+        get_hierarchical_poi_score,
+        get_hierarchical_landuse_score,
+        get_hierarchical_environment_score,
+        get_national_solar_ghi,
+    )
 except ImportError:
     from config import DATA_DIR
     from scoring.weights import DEFAULT_WEIGHTS, WEIGHT_PROFILES
@@ -26,6 +36,16 @@ except ImportError:
     from utils.geo_helpers import haversine_distance
     from api.routes_layers import _get_fallback_geojson
     from spatial.wind_resource import get_wind_resource_score
+    from spatial.india_spatial import (
+        get_hierarchical_settlement,
+        get_hierarchical_demographics_score,
+        get_hierarchical_transport,
+        get_hierarchical_transport_score,
+        get_hierarchical_poi_score,
+        get_hierarchical_landuse_score,
+        get_hierarchical_environment_score,
+        get_national_solar_ghi,
+    )
 
 
 def score_to_grade(score: float) -> str:
@@ -140,137 +160,158 @@ class SiteReadinessScorer:
     def _score_demographics(self, lat: float, lng: float) -> float:
         layer = self.layers.get("demographics", {})
         features = layer.get("features", [])
-        if not features:
-            return 50.0
 
-        # Find closest demographic clusters and apply gaussian distance decay
+        # Continuous hierarchical model for all 33 Gujarat districts and nationwide
+        h_score, _, _, _ = get_hierarchical_demographics_score(lat, lng)
+
         best_score = 0.0
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") == "Point":
-                coords = geom.get("coordinates", [])
-                if len(coords) >= 2:
-                    p_lng, p_lat = coords[0], coords[1]
-                    d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
-                    decay = gaussian(d_m, sigma=5000.0)
-                    pop = feat.get("properties", {}).get("population", 3000)
-                    norm_pop = min(pop / 10000.0, 1.0)
-                    cluster_score = (norm_pop * 0.7 + 0.3) * decay * 100.0
-                    if cluster_score > best_score:
-                        best_score = cluster_score
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") == "Point":
+                    coords = geom.get("coordinates", [])
+                    if len(coords) >= 2:
+                        p_lng, p_lat = coords[0], coords[1]
+                        d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
+                        decay = gaussian(d_m, sigma=5000.0)
+                        pop = feat.get("properties", {}).get("population", 3000)
+                        norm_pop = min(pop / 10000.0, 1.0)
+                        cluster_score = (norm_pop * 0.7 + 0.3) * decay * 100.0
+                        if cluster_score > best_score:
+                            best_score = cluster_score
 
-        # Minimum baseline of 35 for populated regions in Gujarat
-        return round(max(35.0, min(best_score, 98.0)), 1)
+        if best_score > 38.0:
+            return round(min(best_score, 98.0), 1)
+
+        # High-fidelity continuous demographic evaluation
+        return h_score
 
     def _score_transportation(self, lat: float, lng: float) -> float:
         layer = self.layers.get("transportation", {})
         features = layer.get("features", [])
-        if not features:
-            return 55.0
+
+        # Continuous national & state highway network distance decay
+        h_score, _ = get_hierarchical_transport_score(lat, lng)
 
         min_dist_m = float("inf")
-        for feat in features:
-            geom = feat.get("geometry", {})
-            g_type = geom.get("type")
-            coords = geom.get("coordinates", [])
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                g_type = geom.get("type")
+                coords = geom.get("coordinates", [])
 
-            if g_type == "LineString":
-                for pt in coords:
-                    d_m = haversine_distance(lat, lng, pt[1], pt[0], unit="m")
-                    if d_m < min_dist_m:
-                        min_dist_m = d_m
-            elif g_type == "MultiLineString":
-                for line in coords:
-                    for pt in line:
+                if g_type == "LineString":
+                    for pt in coords:
                         d_m = haversine_distance(lat, lng, pt[1], pt[0], unit="m")
                         if d_m < min_dist_m:
                             min_dist_m = d_m
+                elif g_type == "MultiLineString":
+                    for line in coords:
+                        for pt in line:
+                            d_m = haversine_distance(lat, lng, pt[1], pt[0], unit="m")
+                            if d_m < min_dist_m:
+                                min_dist_m = d_m
 
-        if min_dist_m == float("inf"):
-            return 50.0
+        if min_dist_m <= 6000.0:
+            factor = inverse_distance(min_dist_m, max_d=6000.0)
+            local_score = round(25.0 + (factor * 75.0), 1)
+            return max(local_score, h_score)
 
-        # Score decays from 100 near roads down to 20 at 5km away
-        factor = inverse_distance(min_dist_m, max_d=6000.0)
-        score = 25.0 + (factor * 75.0)
-        return round(min(score, 98.0), 1)
+        return h_score
 
     def _score_poi(self, lat: float, lng: float) -> float:
         layer = self.layers.get("poi", {})
         features = layer.get("features", [])
-        if not features:
-            return 50.0
+
+        # Continuous commercial and economic activity density across India
+        h_score, _ = get_hierarchical_poi_score(lat, lng)
 
         weighted_presence = 0.0
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") == "Point":
-                coords = geom.get("coordinates", [])
-                if len(coords) >= 2:
-                    p_lng, p_lat = coords[0], coords[1]
-                    d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
-                    # Influence within 4km radius
-                    decay = gaussian(d_m, sigma=2500.0)
-                    footfall = feat.get("properties", {}).get("footfall", 500)
-                    norm_weight = min(footfall / 1000.0, 1.0)
-                    weighted_presence += decay * norm_weight
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") == "Point":
+                    coords = geom.get("coordinates", [])
+                    if len(coords) >= 2:
+                        p_lng, p_lat = coords[0], coords[1]
+                        d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
+                        decay = gaussian(d_m, sigma=2500.0)
+                        footfall = feat.get("properties", {}).get("footfall", 500)
+                        norm_weight = min(footfall / 1000.0, 1.0)
+                        weighted_presence += decay * norm_weight
 
-        # Normalize score
-        score = 30.0 + min(weighted_presence * 28.0, 68.0)
-        return round(min(score, 98.0), 1)
+        if weighted_presence >= 0.1:
+            local_score = round(min(30.0 + min(weighted_presence * 28.0, 68.0), 98.0), 1)
+            return max(local_score, h_score)
+
+        return h_score
 
     def _score_landuse(self, lat: float, lng: float) -> float:
         layer = self.layers.get("landuse", {})
         features = layer.get("features", [])
-        if not features:
-            return 60.0
 
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") in ("Polygon", "MultiPolygon"):
-                if check_point_in_geojson_geometry(lat, lng, geom):
-                    zone = feat.get("properties", {}).get("zone", "").lower()
-                    for k, val in LANDUSE_SCORES.items():
-                        if k in zone:
-                            return val
-                    return 70.0
-        # Default mixed/unassigned urban land
-        return 65.0
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") in ("Polygon", "MultiPolygon"):
+                    if check_point_in_geojson_geometry(lat, lng, geom):
+                        zone = feat.get("properties", {}).get("zone", "").lower()
+                        for k, val in LANDUSE_SCORES.items():
+                            if k in zone:
+                                return val
+                        return 70.0
+
+        # Continuous landuse zoning model for Gujarat and India
+        h_score, _ = get_hierarchical_landuse_score(lat, lng, site_type="ev_charging")
+        return h_score
 
     def _score_environment(self, lat: float, lng: float) -> float:
         layer = self.layers.get("environment", {})
         features = layer.get("features", [])
-        if not features:
-            return 85.0
 
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") in ("Polygon", "MultiPolygon"):
-                if check_point_in_geojson_geometry(lat, lng, geom):
-                    risk = feat.get("properties", {}).get("risk_level", "medium").lower()
-                    return ENVIRONMENT_SCORES.get(risk, 60.0)
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") in ("Polygon", "MultiPolygon"):
+                    if check_point_in_geojson_geometry(lat, lng, geom):
+                        risk = feat.get("properties", {}).get("risk_level", "medium").lower()
+                        return ENVIRONMENT_SCORES.get(risk, 60.0)
 
-        return ENVIRONMENT_SCORES["none"]
+        # Continuous environmental hazard and floodplain model across India
+        h_score, _ = get_hierarchical_environment_score(lat, lng)
+        return h_score
 
     def _score_renewables_demographics(self, lat: float, lng: float) -> Tuple[float, str]:
         """Inverted demographic scoring for wind/solar: rewards sparse/uninhabited land (500m+ buffer),
         penalizes dense settlements."""
         layer = self.layers.get("demographics", {})
         features = layer.get("features", [])
-        if not features:
-            return 88.0, "Settlement Buffer (Low Density Preferred)"
 
         nearest_pop = 0
         min_dist_m = float("inf")
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") == "Point":
-                coords = geom.get("coordinates", [])
-                if len(coords) >= 2:
-                    p_lng, p_lat = coords[0], coords[1]
-                    d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
-                    if d_m < min_dist_m:
-                        min_dist_m = d_m
-                        nearest_pop = feat.get("properties", {}).get("population", 3000)
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") == "Point":
+                    coords = geom.get("coordinates", [])
+                    if len(coords) >= 2:
+                        p_lng, p_lat = coords[0], coords[1]
+                        d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
+                        if d_m < min_dist_m:
+                            min_dist_m = d_m
+                            nearest_pop = feat.get("properties", {}).get("population", 3000)
+
+        # If localized features are far or absent, use settlement hierarchy
+        if min_dist_m == float("inf") or min_dist_m > 15000:
+            settlement, dist_m = get_hierarchical_settlement(lat, lng)
+            if dist_m < 2000 and settlement["pop"] > 200000:
+                return 22.0, f"Urban Settlement Conflict (< 2km to {settlement['name']})"
+            elif dist_m < 4000:
+                return 55.0, f"Suburban Habitation Buffer ({settlement['name']})"
+            elif dist_m > 8000:
+                return 96.0, f"Optimal Habitation Buffer (> 8km from {settlement['name']})"
+            else:
+                return 85.0, f"Adequate Habitation Buffer ({settlement['name']} Perimeter)"
 
         # Buffer rule: if within 800m of dense cluster (> 2000 people), high risk / severe penalty
         if min_dist_m < 800 and nearest_pop > 2000:
@@ -287,46 +328,52 @@ class SiteReadinessScorer:
         penalizes expensive downtown commercial plots."""
         layer = self.layers.get("landuse", {})
         features = layer.get("features", [])
-        if not features:
-            return 88.0, "Open Rural / Non-Arable Terrain"
 
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") in ("Polygon", "MultiPolygon"):
-                if check_point_in_geojson_geometry(lat, lng, geom):
-                    zone = feat.get("properties", {}).get("zone", "").lower()
-                    for k, val in RENEWABLES_LANDUSE_SCORES.items():
-                        if k in zone:
-                            return val, f"Zoning: {zone.title()}"
-                    return 75.0, f"Zoning: {zone.title()}"
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") in ("Polygon", "MultiPolygon"):
+                    if check_point_in_geojson_geometry(lat, lng, geom):
+                        zone = feat.get("properties", {}).get("zone", "").lower()
+                        for k, val in RENEWABLES_LANDUSE_SCORES.items():
+                            if k in zone:
+                                return val, f"Zoning: {zone.title()}"
+                        return 75.0, f"Zoning: {zone.title()}"
 
-        return 90.0, "Open Revenue Wasteland / Non-Arable Land"
+        # Hierarchical regional land use evaluation across India
+        score, label = get_hierarchical_landuse_score(lat, lng, "renewables")
+        return score, label
 
     def _score_renewables_transportation(self, lat: float, lng: float) -> Tuple[float, str]:
         """Heavy logistics access: wind turbines need wide turning radius and access roads within 15km."""
         layer = self.layers.get("transportation", {})
         features = layer.get("features", [])
-        if not features:
-            return 75.0, "Logistics & Evacuation Access"
 
         min_dist_m = float("inf")
-        for feat in features:
-            geom = feat.get("geometry", {})
-            coords = geom.get("coordinates", [])
-            if geom.get("type") == "LineString":
-                for pt in coords:
-                    d_m = haversine_distance(lat, lng, pt[1], pt[0], unit="m")
-                    if d_m < min_dist_m:
-                        min_dist_m = d_m
-            elif geom.get("type") == "MultiLineString":
-                for line in coords:
-                    for pt in line:
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                coords = geom.get("coordinates", [])
+                if geom.get("type") == "LineString":
+                    for pt in coords:
                         d_m = haversine_distance(lat, lng, pt[1], pt[0], unit="m")
                         if d_m < min_dist_m:
                             min_dist_m = d_m
+                elif geom.get("type") == "MultiLineString":
+                    for line in coords:
+                        for pt in line:
+                            d_m = haversine_distance(lat, lng, pt[1], pt[0], unit="m")
+                            if d_m < min_dist_m:
+                                min_dist_m = d_m
 
-        if min_dist_m == float("inf"):
-            return 70.0, "Regional Transport Corridor"
+        if min_dist_m == float("inf") or min_dist_m > 15000:
+            h_dist_m, corr_name = get_hierarchical_transport(lat, lng)
+            if h_dist_m <= 4000:
+                return 95.0, f"Direct Heavy Haulage Access (< 4km to {corr_name})"
+            elif h_dist_m <= 12000:
+                return 82.0, f"Viable Haulage Corridor ({h_dist_m / 1000:.1f}km to {corr_name})"
+            else:
+                return 58.0, f"Remote Haulage Route ({h_dist_m / 1000:.1f}km to {corr_name})"
 
         if min_dist_m <= 4000:
             return 95.0, "Direct Heavy Haulage Access (< 4km to Arterial)"
@@ -338,198 +385,203 @@ class SiteReadinessScorer:
     # ── EV CHARGING — Archetype-Specific Scorers ──────────────────────
 
     def _score_ev_demographics(self, lat: float, lng: float) -> Tuple[float, str]:
-        """Income-weighted EV adoption density. Areas with higher income brackets
-        and tech park proximity receive a bonus (EV ownership proxy)."""
+        """Income-weighted EV adoption density across Gujarat and India."""
         layer = self.layers.get("demographics", {})
         features = layer.get("features", [])
-        if not features:
-            return 55.0, "EV Adoption Density"
 
         best_score = 0.0
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") == "Point":
-                coords = geom.get("coordinates", [])
-                if len(coords) >= 2:
-                    p_lng, p_lat = coords[0], coords[1]
-                    d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
-                    decay = gaussian(d_m, sigma=4000.0)
-                    pop = feat.get("properties", {}).get("population", 3000)
-                    # Income proxy: areas with higher population density tend to have more EV adoption
-                    income_tier = feat.get("properties", {}).get("income_tier", "medium")
-                    income_mult = {"high": 1.3, "medium": 1.0, "low": 0.6}.get(income_tier, 1.0)
-                    norm_pop = min(pop / 8000.0, 1.0)
-                    cluster_score = (norm_pop * 0.6 + 0.4) * decay * income_mult * 100.0
-                    if cluster_score > best_score:
-                        best_score = cluster_score
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") == "Point":
+                    coords = geom.get("coordinates", [])
+                    if len(coords) >= 2:
+                        p_lng, p_lat = coords[0], coords[1]
+                        d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
+                        decay = gaussian(d_m, sigma=4000.0)
+                        pop = feat.get("properties", {}).get("population", 3000)
+                        income_tier = feat.get("properties", {}).get("income_tier", "medium")
+                        income_mult = {"high": 1.3, "medium": 1.0, "low": 0.6}.get(income_tier, 1.0)
+                        norm_pop = min(pop / 8000.0, 1.0)
+                        cluster_score = (norm_pop * 0.6 + 0.4) * decay * income_mult * 100.0
+                        if cluster_score > best_score:
+                            best_score = cluster_score
 
-        score = round(max(30.0, min(best_score, 98.0)), 1)
-        if score >= 80:
-            return score, "High EV Adoption Zone (Dense Urban / Tech Corridor)"
-        elif score >= 55:
-            return score, "Moderate EV Adoption Density"
+        if best_score >= 38.0:
+            score = round(min(best_score, 98.0), 1)
+            label = "High EV Adoption Zone (Dense Urban / Tech Corridor)" if score >= 80 else ("Moderate EV Adoption Density" if score >= 55 else "Low EV Adoption Potential")
+            return score, label
+
+        # Nationwide hierarchical demographic model with income proxy
+        h_score, label, _, inc = get_hierarchical_demographics_score(lat, lng)
+        inc_mult = {"high": 1.25, "medium": 1.0, "low": 0.7}.get(inc, 1.0)
+        score = round(max(28.0, min(h_score * inc_mult, 98.0)), 1)
+        if score >= 78:
+            return score, f"Prime EV Corridor ({label})"
+        elif score >= 52:
+            return score, f"Moderate EV Adoption ({label})"
         else:
-            return score, "Low EV Adoption Potential"
+            return score, f"Emerging EV Territory ({label})"
 
     def _score_ev_poi(self, lat: float, lng: float) -> Tuple[float, str]:
         """Dwell-time anchor proximity: malls (60-90 min charging), offices (8h slow),
         petrol pumps (15 min DC fast). Following MoP 3×3 km grid coverage guideline."""
         layer = self.layers.get("poi", {})
         features = layer.get("features", [])
-        if not features:
-            return 55.0, "Dwell-Time Anchors"
 
         dwell_score = 0.0
         anchor_types_found = set()
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") == "Point":
-                coords = geom.get("coordinates", [])
-                if len(coords) >= 2:
-                    p_lng, p_lat = coords[0], coords[1]
-                    d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
-                    decay = gaussian(d_m, sigma=2000.0)
-                    poi_type = feat.get("properties", {}).get("type", "").lower()
-                    footfall = feat.get("properties", {}).get("footfall", 500)
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") == "Point":
+                    coords = geom.get("coordinates", [])
+                    if len(coords) >= 2:
+                        p_lng, p_lat = coords[0], coords[1]
+                        d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
+                        decay = gaussian(d_m, sigma=2000.0)
+                        poi_type = feat.get("properties", {}).get("type", "").lower()
+                        footfall = feat.get("properties", {}).get("footfall", 500)
 
-                    # Weight by dwell-time suitability
-                    if any(k in poi_type for k in ["mall", "shopping", "cinema"]):
-                        type_mult = 1.4  # High dwell time = ideal for AC charging
-                        anchor_types_found.add("mall")
-                    elif any(k in poi_type for k in ["office", "it_park", "tech"]):
-                        type_mult = 1.3  # 8h parking = slow charge opportunity
-                        anchor_types_found.add("office")
-                    elif any(k in poi_type for k in ["petrol", "fuel", "gas"]):
-                        type_mult = 1.2  # Existing refueling behavior
-                        anchor_types_found.add("fuel")
-                    elif any(k in poi_type for k in ["hospital", "hotel"]):
-                        type_mult = 1.1
-                        anchor_types_found.add("other")
-                    else:
-                        type_mult = 0.8
+                        if any(k in poi_type for k in ["mall", "shopping", "cinema"]):
+                            type_mult = 1.4
+                            anchor_types_found.add("mall")
+                        elif any(k in poi_type for k in ["office", "it_park", "tech"]):
+                            type_mult = 1.3
+                            anchor_types_found.add("office")
+                        elif any(k in poi_type for k in ["petrol", "fuel", "gas"]):
+                            type_mult = 1.2
+                            anchor_types_found.add("fuel")
+                        elif any(k in poi_type for k in ["hospital", "hotel"]):
+                            type_mult = 1.1
+                            anchor_types_found.add("other")
+                        else:
+                            type_mult = 0.8
 
-                    norm_weight = min(footfall / 1000.0, 1.0)
-                    dwell_score += decay * norm_weight * type_mult
+                        norm_weight = min(footfall / 1000.0, 1.0)
+                        dwell_score += decay * norm_weight * type_mult
 
-        # Diversity bonus: multiple anchor types nearby
-        diversity_bonus = min(len(anchor_types_found) * 5.0, 15.0)
-        score = 30.0 + min(dwell_score * 25.0, 55.0) + diversity_bonus
-        score = round(min(score, 98.0), 1)
-        if score >= 75:
-            return score, "Prime Dwell-Time Location (Mall/Office/Fuel Hub)"
-        elif score >= 55:
-            return score, "Viable Charging Location"
-        else:
-            return score, "Limited Dwell-Time Anchors"
+        if dwell_score >= 0.15:
+            diversity_bonus = min(len(anchor_types_found) * 5.0, 15.0)
+            score = 30.0 + min(dwell_score * 25.0, 55.0) + diversity_bonus
+            score = round(min(score, 98.0), 1)
+            label = "Prime Dwell-Time Location (Mall/Office/Fuel Hub)" if score >= 75 else "Viable Charging Location"
+            return score, label
+
+        # Nationwide commercial dwell model
+        h_score, label = get_hierarchical_poi_score(lat, lng)
+        return h_score, f"EV Anchor Node: {label}"
 
     # ── RETAIL STORE — Archetype-Specific Scorers ─────────────────────
 
     def _score_retail_demographics(self, lat: float, lng: float) -> Tuple[float, str]:
-        """Pure footfall catchment — high population density in 2km trade area = high score.
-        Research: 70% of retail revenue comes from within 10-min drive/walk."""
+        """Pure footfall catchment — high population density in 2km trade area = high score."""
         layer = self.layers.get("demographics", {})
         features = layer.get("features", [])
-        if not features:
-            return 50.0, "Footfall Catchment"
 
-        # Accumulate population within 2km trade area (not just nearest)
         catchment_pop = 0
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") == "Point":
-                coords = geom.get("coordinates", [])
-                if len(coords) >= 2:
-                    p_lng, p_lat = coords[0], coords[1]
-                    d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
-                    if d_m <= 3000:
-                        pop = feat.get("properties", {}).get("population", 3000)
-                        decay = gaussian(d_m, sigma=2000.0)
-                        catchment_pop += pop * decay
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") == "Point":
+                    coords = geom.get("coordinates", [])
+                    if len(coords) >= 2:
+                        p_lng, p_lat = coords[0], coords[1]
+                        d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
+                        if d_m <= 3000:
+                            pop = feat.get("properties", {}).get("population", 3000)
+                            decay = gaussian(d_m, sigma=2000.0)
+                            catchment_pop += pop * decay
 
-        # Normalize: 50,000 catchment within 3km = excellent
-        norm = min(catchment_pop / 50000.0, 1.0)
-        score = round(30.0 + norm * 68.0, 1)
-        if score >= 80:
-            return score, "High-Density Trade Area (50k+ Catchment)"
-        elif score >= 55:
-            return score, "Moderate Footfall Catchment"
-        else:
-            return score, "Low Population Catchment"
+        if catchment_pop >= 1500:
+            norm = min(catchment_pop / 50000.0, 1.0)
+            score = round(30.0 + norm * 68.0, 1)
+            label = "High-Density Trade Area (50k+ Catchment)" if score >= 80 else ("Moderate Footfall Catchment" if score >= 55 else "Low Population Catchment")
+            return score, label
+
+        # Hierarchical catchment population across India
+        h_score, label, est_pop, _ = get_hierarchical_demographics_score(lat, lng)
+        norm = min(est_pop / 35000.0, 1.0)
+        score = round(28.0 + norm * 70.0, 1)
+        return score, f"Retail Trade Area: {label}"
 
     def _score_retail_poi(self, lat: float, lng: float) -> Tuple[float, str]:
-        """Co-tenancy & cluster effect scoring. Complementary businesses nearby
-        boost footfall. Moderate competition is healthy (cluster effect)."""
+        """Co-tenancy & cluster effect scoring across Gujarat and India."""
         layer = self.layers.get("poi", {})
         features = layer.get("features", [])
-        if not features:
-            return 50.0, "Co-Tenancy & Cluster Effect"
 
         co_tenancy_score = 0.0
         complementary_count = 0
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") == "Point":
-                coords = geom.get("coordinates", [])
-                if len(coords) >= 2:
-                    p_lng, p_lat = coords[0], coords[1]
-                    d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
-                    decay = gaussian(d_m, sigma=1500.0)
-                    poi_type = feat.get("properties", {}).get("type", "").lower()
-                    footfall = feat.get("properties", {}).get("footfall", 500)
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") == "Point":
+                    coords = geom.get("coordinates", [])
+                    if len(coords) >= 2:
+                        p_lng, p_lat = coords[0], coords[1]
+                        d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
+                        decay = gaussian(d_m, sigma=1500.0)
+                        poi_type = feat.get("properties", {}).get("type", "").lower()
+                        footfall = feat.get("properties", {}).get("footfall", 500)
 
-                    # Complementary businesses increase foot traffic
-                    if any(k in poi_type for k in ["grocery", "supermarket", "gym", "cafe", "restaurant"]):
-                        type_mult = 1.5  # Strong complementary draw
-                        complementary_count += 1
-                    elif any(k in poi_type for k in ["mall", "cinema", "transit", "metro", "bus"]):
-                        type_mult = 1.3  # Traffic generators
-                    elif any(k in poi_type for k in ["bank", "pharmacy", "hospital"]):
-                        type_mult = 1.1  # Essential services
-                    else:
-                        type_mult = 0.9
+                        if any(k in poi_type for k in ["grocery", "supermarket", "gym", "cafe", "restaurant"]):
+                            type_mult = 1.5
+                            complementary_count += 1
+                        elif any(k in poi_type for k in ["mall", "cinema", "transit", "metro", "bus"]):
+                            type_mult = 1.3
+                        elif any(k in poi_type for k in ["bank", "pharmacy", "hospital"]):
+                            type_mult = 1.1
+                        else:
+                            type_mult = 0.9
 
-                    norm_weight = min(footfall / 800.0, 1.0)
-                    co_tenancy_score += decay * norm_weight * type_mult
+                        norm_weight = min(footfall / 800.0, 1.0)
+                        co_tenancy_score += decay * norm_weight * type_mult
 
-        # Complementary diversity bonus
-        diversity_bonus = min(complementary_count * 4.0, 16.0)
-        score = 25.0 + min(co_tenancy_score * 22.0, 57.0) + diversity_bonus
-        score = round(min(score, 98.0), 1)
-        if score >= 75:
-            return score, "Strong Co-Tenancy Cluster (Retail Hub)"
-        elif score >= 50:
-            return score, "Moderate Commercial Cluster"
-        else:
-            return score, "Isolated Location (Low Co-Tenancy)"
+        if co_tenancy_score >= 0.15:
+            diversity_bonus = min(complementary_count * 4.0, 16.0)
+            score = 25.0 + min(co_tenancy_score * 22.0, 57.0) + diversity_bonus
+            score = round(min(score, 98.0), 1)
+            label = "Strong Co-Tenancy Cluster (Retail Hub)" if score >= 75 else "Moderate Commercial Cluster"
+            return score, label
+
+        h_score, label = get_hierarchical_poi_score(lat, lng)
+        return h_score, f"Retail Footfall Node ({label})"
 
     # ── WAREHOUSE / LOGISTICS — Archetype-Specific Scorers ────────────
 
     def _score_warehouse_demographics(self, lat: float, lng: float) -> Tuple[float, str]:
         """INVERTED demographic scoring for warehouses: rewards sparse/low-density areas
-        with cheap land and large parcels. Urban core = expensive, no scalability."""
+        with cheap land and large parcels."""
         layer = self.layers.get("demographics", {})
         features = layer.get("features", [])
-        if not features:
-            return 80.0, "Settlement Buffer (Low Density Preferred)"
 
         nearest_pop = 0
         min_dist_m = float("inf")
         total_nearby_pop = 0
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") == "Point":
-                coords = geom.get("coordinates", [])
-                if len(coords) >= 2:
-                    p_lng, p_lat = coords[0], coords[1]
-                    d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
-                    pop = feat.get("properties", {}).get("population", 3000)
-                    if d_m < 5000:
-                        total_nearby_pop += pop
-                    if d_m < min_dist_m:
-                        min_dist_m = d_m
-                        nearest_pop = pop
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") == "Point":
+                    coords = geom.get("coordinates", [])
+                    if len(coords) >= 2:
+                        p_lng, p_lat = coords[0], coords[1]
+                        d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
+                        pop = feat.get("properties", {}).get("population", 3000)
+                        if d_m < 5000:
+                            total_nearby_pop += pop
+                        if d_m < min_dist_m:
+                            min_dist_m = d_m
+                            nearest_pop = pop
 
-        # Dense urban core (< 2km to major settlement) = poor for warehouse
+        if min_dist_m == float("inf") or min_dist_m > 15000:
+            settlement, dist_m = get_hierarchical_settlement(lat, lng)
+            if dist_m < 3000 and settlement["pop"] > 600000:
+                return 35.0, f"Urban Core Congestion ({settlement['name']} — High Land Cost)"
+            elif dist_m < 15000:
+                return 92.0, f"Prime Logistics Corridor ({settlement['name']} Industrial Belt)"
+            else:
+                return 80.0, f"Peripheral Low-Density Area ({settlement['name']} Hinterland)"
+
         if min_dist_m < 2000 and nearest_pop > 5000:
             return 25.0, "Urban Core Conflict (High Land Cost, No Scalability)"
         elif min_dist_m < 3000 and total_nearby_pop > 20000:
@@ -542,80 +594,66 @@ class SiteReadinessScorer:
             return 65.0, "Moderate Density — Viable with Trade-offs"
 
     def _score_warehouse_landuse(self, lat: float, lng: float) -> Tuple[float, str]:
-        """Industrial/warehouse zoning mandatory. Agricultural land treated as
-        convertible (Gujarat Tier-2 model: Sanand, Bavla, Halol)."""
+        """Industrial/warehouse zoning mandatory."""
         layer = self.layers.get("landuse", {})
         features = layer.get("features", [])
-        if not features:
-            return 70.0, "Industrial / Logistics Zoning"
 
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") in ("Polygon", "MultiPolygon"):
-                if check_point_in_geojson_geometry(lat, lng, geom):
-                    zone = feat.get("properties", {}).get("zone", "").lower()
-                    for k, val in WAREHOUSE_LANDUSE_SCORES.items():
-                        if k in zone:
-                            label = f"Zoning: {zone.title()}"
-                            if val >= 90:
-                                label = f"Industrial/Logistics Zone ({zone.title()})"
-                            elif val <= 30:
-                                label = f"Incompatible Zoning ({zone.title()})"
-                            return val, label
-                    return 60.0, f"Zoning: {zone.title()}"
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") in ("Polygon", "MultiPolygon"):
+                    if check_point_in_geojson_geometry(lat, lng, geom):
+                        zone = feat.get("properties", {}).get("zone", "").lower()
+                        for k, val in WAREHOUSE_LANDUSE_SCORES.items():
+                            if k in zone:
+                                label = f"Industrial/Logistics Zone ({zone.title()})" if val >= 90 else f"Zoning: {zone.title()}"
+                                return val, label
+                        return 60.0, f"Zoning: {zone.title()}"
 
-        return 70.0, "Peripheral Industrial / Open Land"
+        return get_hierarchical_landuse_score(lat, lng, "warehouse")
 
     # ── TELECOM TOWER — Archetype-Specific Scorers ────────────────────
 
     def _score_telecom_demographics(self, lat: float, lng: float) -> Tuple[float, str]:
-        """Subscriber density proxy — high population = more users per tower = better ROI.
-        Coverage gap filling also needs people to serve."""
+        """Subscriber density proxy — high population = more users per tower = better ROI."""
         layer = self.layers.get("demographics", {})
         features = layer.get("features", [])
-        if not features:
-            return 50.0, "Subscriber Density"
 
-        # Accumulate population within 5km coverage radius
         coverage_pop = 0
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") == "Point":
-                coords = geom.get("coordinates", [])
-                if len(coords) >= 2:
-                    p_lng, p_lat = coords[0], coords[1]
-                    d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
-                    if d_m <= 5000:
-                        pop = feat.get("properties", {}).get("population", 3000)
-                        decay = gaussian(d_m, sigma=4000.0)
-                        coverage_pop += pop * decay
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") == "Point":
+                    coords = geom.get("coordinates", [])
+                    if len(coords) >= 2:
+                        p_lng, p_lat = coords[0], coords[1]
+                        d_m = haversine_distance(lat, lng, p_lat, p_lng, unit="m")
+                        if d_m <= 5000:
+                            pop = feat.get("properties", {}).get("population", 3000)
+                            decay = gaussian(d_m, sigma=4000.0)
+                            coverage_pop += pop * decay
 
-        # Normalize: 80,000 coverage population = excellent
-        norm = min(coverage_pop / 80000.0, 1.0)
-        score = round(25.0 + norm * 73.0, 1)
-        if score >= 80:
-            return score, "High Subscriber Density (80k+ Coverage Pop)"
-        elif score >= 55:
-            return score, "Moderate Coverage Demand"
-        else:
-            return score, "Low Subscriber Density (Rural Gap)"
+        if coverage_pop >= 2000:
+            norm = min(coverage_pop / 80000.0, 1.0)
+            score = round(25.0 + norm * 73.0, 1)
+            label = "High Subscriber Density (80k+ Coverage Pop)" if score >= 80 else ("Moderate Coverage Demand" if score >= 55 else "Low Subscriber Density (Rural Gap)")
+            return score, label
+
+        h_score, label, _, _ = get_hierarchical_demographics_score(lat, lng)
+        return h_score, f"Subscriber Traffic Density ({label})"
 
     def _score_telecom_environment(self, lat: float, lng: float) -> Tuple[float, str]:
-        """Elevation-aware scoring for signal propagation. Higher elevation =
-        wider signal radius. Uses Gujarat terrain zone heuristic."""
-        # Check standard environment constraints first
+        """Elevation-aware scoring for signal propagation."""
         base_env_score = self._score_environment(lat, lng)
 
-        # Apply elevation heuristic based on Gujarat terrain zones
-        elevation_m = 40.0  # Default: alluvial plain
-        zone_name = "Gujarat Plain"
+        elevation_m = 40.0
+        zone_name = "Regional Plain"
         for lat_min, lat_max, lng_min, lng_max, elev, name in GUJARAT_ELEVATION_ZONES:
             if lat_min <= lat <= lat_max and lng_min <= lng <= lng_max:
                 elevation_m = elev
                 zone_name = name
                 break
 
-        # Higher elevation = better LoS for signal propagation
         if elevation_m >= 200:
             elev_bonus = 20.0
             elev_label = f"Elevated Terrain ({zone_name}, ~{int(elevation_m)}m) — Excellent LoS"
@@ -629,34 +667,28 @@ class SiteReadinessScorer:
             elev_bonus = 0.0
             elev_label = f"Flat Terrain ({zone_name}, ~{int(elevation_m)}m) — Standard Coverage"
 
-        # Blend base environment score with elevation advantage
         score = min(base_env_score * 0.6 + (50.0 + elev_bonus) * 0.4 + elev_bonus * 0.3, 98.0)
         score = round(max(score, 20.0), 1)
         return score, elev_label
 
     def _score_telecom_landuse(self, lat: float, lng: float) -> Tuple[float, str]:
-        """Telecom-specific land use: both rooftop (urban) and greenfield (rural)
-        are viable. More flexible zoning than other archetypes."""
+        """Telecom-specific land use."""
         layer = self.layers.get("landuse", {})
         features = layer.get("features", [])
-        if not features:
-            return 70.0, "Telecom Zoning Compliance"
 
-        for feat in features:
-            geom = feat.get("geometry", {})
-            if geom.get("type") in ("Polygon", "MultiPolygon"):
-                if check_point_in_geojson_geometry(lat, lng, geom):
-                    zone = feat.get("properties", {}).get("zone", "").lower()
-                    for k, val in TELECOM_LANDUSE_SCORES.items():
-                        if k in zone:
-                            if val >= 80:
-                                label = f"Rooftop Viable ({zone.title()} Zone)"
-                            else:
-                                label = f"Greenfield Tower ({zone.title()} Zone)"
-                            return val, label
-                    return 70.0, f"Zoning: {zone.title()}"
+        if features:
+            for feat in features:
+                geom = feat.get("geometry", {})
+                if geom.get("type") in ("Polygon", "MultiPolygon"):
+                    if check_point_in_geojson_geometry(lat, lng, geom):
+                        zone = feat.get("properties", {}).get("zone", "").lower()
+                        for k, val in TELECOM_LANDUSE_SCORES.items():
+                            if k in zone:
+                                label = f"Rooftop Viable ({zone.title()} Zone)" if val >= 80 else f"Greenfield Tower ({zone.title()} Zone)"
+                                return val, label
+                        return 70.0, f"Zoning: {zone.title()}"
 
-        return 65.0, "Open Land / Greenfield Tower Site"
+        return get_hierarchical_landuse_score(lat, lng, "telecom")
 
     # ── DISPATCHER METHODS ────────────────────────────────────────────
 
@@ -712,30 +744,8 @@ class SiteReadinessScorer:
                 poi_score, poi_label, land_score, land_label, env_score, env_label)
 
     def _score_solar_resource(self, lat: float, lng: float) -> Tuple[float, str, Dict[str, Any]]:
-        """Global Horizontal Irradiance (GHI) model across Gujarat calibrated to MNRE/NREL solar atlas.
-        Kutch & North Gujarat (Patan, Banaskantha) offer 5.8-6.3 kWh/m2/day; South Gujarat ~4.8-5.2."""
-        ghi = 5.2 + (lat - 21.0) * 0.25 - abs(lng - 70.5) * 0.08
-        if lat < 22.0 and lng > 72.5:
-            ghi -= 0.3
-        if lat >= 23.2 and lng <= 71.2:
-            ghi += 0.35
-
-        ghi = round(max(4.2, min(ghi, 6.4)), 2)
-        score = round(max(30.0, min((ghi - 4.2) / (6.4 - 4.2) * 68.0 + 30.0, 98.0)), 1)
-        if ghi >= 5.9:
-            label = f"Prime Solar Belt (GHI: {ghi} kWh/m²/day)"
-        elif ghi >= 5.4:
-            label = f"High Solar Irradiance (GHI: {ghi} kWh/m²/day)"
-        elif ghi >= 5.0:
-            label = f"Moderate Solar Potential (GHI: {ghi} kWh/m²/day)"
-        else:
-            label = f"Sub-optimal Solar Zone (GHI: {ghi} kWh/m²/day)"
-
-        return score, label, {
-            "ghi_kwh_m2_day": ghi,
-            "annual_generation_mwh_mwp": round(ghi * 365 * 0.78, 0),
-            "capacity_utilization_factor_pct": round((ghi / 24.0) * 0.78 * 100, 1)
-        }
+        """Global Horizontal Irradiance (GHI) model across India calibrated to MNRE/NREL solar atlas."""
+        return get_national_solar_ghi(lat, lng)
 
     def _compute_solar(self, lat: float, lng: float):
         """Solar Farm scoring dispatcher."""
